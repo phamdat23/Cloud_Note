@@ -1,4 +1,4 @@
-package com.example.cloud_note.Model;
+package com.example.cloud_note.Model.POST;
 
 import com.google.gson.annotations.SerializedName;
 

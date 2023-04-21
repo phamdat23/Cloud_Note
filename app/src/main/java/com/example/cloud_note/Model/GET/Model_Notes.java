@@ -1,5 +1,6 @@
-package com.example.cloud_note.Model;
+package com.example.cloud_note.Model.GET;
 
+import com.example.cloud_note.Model.Model_List_Note;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

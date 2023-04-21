@@ -26,9 +26,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
-import com.example.cloud_note.Model.ModelReturn;
-import com.example.cloud_note.Model.ModelTextNote;
-import com.example.cloud_note.Model.ModelTextNotePost;
+import com.example.cloud_note.DAO.Login;
+import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.Model_State_Login;
+import com.example.cloud_note.Model.POST.ModelTextNotePost;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,25 +58,21 @@ public class TextNoteActvity extends AppCompatActivity {
     private TextView tvTimeCreate;
     private ImageView imgTimeCreate;
     private String color_background = "#8FD2EF";
-    ModelReturn MmodelReturn ;
-    SharedPreferences sharedPreferences;
+    ModelReturn MmodelReturn;
+
     com.example.cloud_note.Model.Color objColor;
+    Login daoLogin;
+    Model_State_Login user;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_text_note_actvity);
-        sharedPreferences =getSharedPreferences("Account", MODE_PRIVATE);
-        cardView = findViewById(R.id.cardView_textnote);
-        back = findViewById(R.id.back_from_text_note);
-        done = findViewById(R.id.btn_done);
-        title = findViewById(R.id.title_name);
-        content = findViewById(R.id.add_content_text);
-        menu = findViewById(R.id.menu_text_note);
-        tvDateCreate = (TextView) findViewById(R.id.tv_dateCreate);
-        imgDateCreate = (ImageView) findViewById(R.id.img_dateCreate);
-        tvTimeCreate = (TextView) findViewById(R.id.tv_timeCreate);
-        imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
+        init();
+
+        daoLogin = new Login(TextNoteActvity.this);
+        user = daoLogin.getLogin();
         imgDateCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,7 +89,21 @@ public class TextNoteActvity extends AppCompatActivity {
         Back();
         OpenMenu();
     }
-    public void Save(){
+
+    private void init() {
+        cardView = findViewById(R.id.cardView_textnote);
+        back = findViewById(R.id.back_from_text_note);
+        done = findViewById(R.id.btn_done);
+        title = findViewById(R.id.title_name);
+        content = findViewById(R.id.add_content_text);
+        menu = findViewById(R.id.menu_text_note);
+        tvDateCreate = (TextView) findViewById(R.id.tv_dateCreate);
+        imgDateCreate = (ImageView) findViewById(R.id.img_dateCreate);
+        tvTimeCreate = (TextView) findViewById(R.id.tv_timeCreate);
+        imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
+    }
+
+    public void Save() {
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,27 +119,27 @@ public class TextNoteActvity extends AppCompatActivity {
                 obj.setData(content_values);
                 obj.setType("text");
                 obj.setPinned(false);
-                obj.setDuaAt(null);
-                obj.setLock(null);
-                obj.setReminAt(null);
-                obj.setShare(null);
-                if(obj.getTitle()!=null&& obj.getData()!=null){
+                obj.setDuaAt("");
+                obj.setLock("");
+                obj.setReminAt("");
+                obj.setShare("");
+                if (obj.getTitle() != null && obj.getData() != null) {
                     postTextNote(obj);
-                }else{
-                    if(obj.getTitle()==null){
-                        Toast.makeText(TextNoteActvity.this, "Title không được để trống" , Toast.LENGTH_SHORT).show();
+                } else {
+                    if (obj.getTitle() == null) {
+                        Toast.makeText(TextNoteActvity.this, "Title không được để trống", Toast.LENGTH_SHORT).show();
                     }
-                    if(obj.getData()==null){
-                        Toast.makeText(TextNoteActvity.this, "Content không được để trống" , Toast.LENGTH_SHORT).show();
+                    if (obj.getData() == null) {
+                        Toast.makeText(TextNoteActvity.this, "Content không được để trống", Toast.LENGTH_SHORT).show();
                     }
 
                 }
 
 
-
             }
         });
     }
+
     public void dialogDate() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -146,7 +157,8 @@ public class TextNoteActvity extends AppCompatActivity {
         );
         datePickerDialog.show();
     }
-    public void dialogTime(){
+
+    public void dialogTime() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
@@ -156,16 +168,16 @@ public class TextNoteActvity extends AppCompatActivity {
             public void onTimeSet(TimePicker timePicker, int i, int i1) {
                 int hour = i;
                 int minute = i1;
-                tvTimeCreate.setText(hour+":"+minute);
+                tvTimeCreate.setText(hour + ":" + minute);
             }
         }, hourOfDay, minute, false);
         timePickerDialog.show();
     }
 
 
-    public void postTextNote(ModelTextNotePost obj){
+    public void postTextNote(ModelTextNotePost obj) {
 
-        APINote.apiService.post_text_note(10, obj)
+        APINote.apiService.post_text_note(user.getIdUer(), obj)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ModelReturn>() {
@@ -181,12 +193,12 @@ public class TextNoteActvity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.e("TAG", "onError: "+e);
+                        Log.e("TAG", "onError: " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        if(MmodelReturn.getStatus()==200){
+                        if (MmodelReturn.getStatus() == 200) {
                             Toast.makeText(TextNoteActvity.this, "Success", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(TextNoteActvity.this, MainActivity.class);
                             startActivity(intent);
@@ -196,7 +208,7 @@ public class TextNoteActvity extends AppCompatActivity {
                 });
     }
 
-    public void Back(){
+    public void Back() {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -204,7 +216,8 @@ public class TextNoteActvity extends AppCompatActivity {
             }
         });
     }
-    public void OpenMenu(){
+
+    public void OpenMenu() {
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -212,7 +225,8 @@ public class TextNoteActvity extends AppCompatActivity {
             }
         });
     }
-    public void Menu_Dialog(int gravity){
+
+    public void Menu_Dialog(int gravity) {
         final Dialog dialog = new Dialog(this);
         //Truyền layout cho dialog.
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -221,7 +235,7 @@ public class TextNoteActvity extends AppCompatActivity {
         //Xác định vị trí cho dialog
 
         Window window = dialog.getWindow();
-        if(window == null){
+        if (window == null) {
 
         }
 
@@ -232,9 +246,9 @@ public class TextNoteActvity extends AppCompatActivity {
         windowAttributes.gravity = gravity;
         window.setAttributes(windowAttributes);
 
-        if(Gravity.BOTTOM == gravity){
+        if (Gravity.BOTTOM == gravity) {
             dialog.setCancelable(true);
-        }else {
+        } else {
             dialog.setCancelable(false);
         }
         //Ánh xạ
@@ -320,7 +334,8 @@ public class TextNoteActvity extends AppCompatActivity {
         });
         dialog.show();
     }
-    public com.example.cloud_note.Model.Color chuyenMau (String hexColor){
+
+    public com.example.cloud_note.Model.Color chuyenMau(String hexColor) {
         int red = Integer.parseInt(hexColor.substring(1, 3), 16);
         int green = Integer.parseInt(hexColor.substring(3, 5), 16);
         int blue = Integer.parseInt(hexColor.substring(5, 7), 16);

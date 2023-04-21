@@ -14,6 +14,13 @@ public class Color {
     public Color() {
     }
 
+    public Color(float a, int b, int g, int r) {
+        this.a = a;
+        this.b = b;
+        this.g = g;
+        this.r = r;
+    }
+
     public float getA() {
         return a;
     }

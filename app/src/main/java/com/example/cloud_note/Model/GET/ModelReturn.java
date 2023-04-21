@@ -1,4 +1,4 @@
-package com.example.cloud_note.Model;
+package com.example.cloud_note.Model.GET;
 
 public class ModelReturn {
     private String message;

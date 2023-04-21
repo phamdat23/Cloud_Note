@@ -1,14 +1,10 @@
-package com.example.cloud_note.Model;
+package com.example.cloud_note.Model.POST;
 
+import com.example.cloud_note.Model.Color;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
+public class ModelTextNotePost {
 
-public class ModelTextNoteCheckList {
-
-
-    @SerializedName("idNote")
-    private int id;
     @SerializedName("title")
 
     private String title;
@@ -21,37 +17,22 @@ public class ModelTextNoteCheckList {
     @SerializedName("dueAt")
 
     private String duaAt;
-    @SerializedName("createAt")
 
-    private String createAt;
     @SerializedName("data")
 
-    private List<ModelCheckList> data;
-    @SerializedName("doneNote")
+    private String data;
 
-    private int doneNote;
-    @SerializedName("idUser")
-
-    private int idUser;
     @SerializedName("lock")
 
     private String lock;
     @SerializedName("pinned")
 
-    private int pinned;
+    private boolean pinned;
     @SerializedName("remindAt")
 
     private String reminAt;
     @SerializedName("share")
     private String share;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;
@@ -85,36 +66,12 @@ public class ModelTextNoteCheckList {
         this.duaAt = duaAt;
     }
 
-    public String getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(String createAt) {
-        this.createAt = createAt;
-    }
-
-    public List<ModelCheckList> getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(List<ModelCheckList> data) {
+    public void setData(String data) {
         this.data = data;
-    }
-
-    public int getDoneNote() {
-        return doneNote;
-    }
-
-    public void setDoneNote(int doneNote) {
-        this.doneNote = doneNote;
-    }
-
-    public int getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
     }
 
     public String getLock() {
@@ -125,21 +82,12 @@ public class ModelTextNoteCheckList {
         this.lock = lock;
     }
 
-
-    public int getPinned() {
+    public boolean isPinned() {
         return pinned;
     }
 
-    public void setPinned(int pinned) {
+    public void setPinned(boolean pinned) {
         this.pinned = pinned;
-    }
-
-    public String getShare() {
-        return share;
-    }
-
-    public void setShare(String share) {
-        this.share = share;
     }
 
     public String getReminAt() {
@@ -148,5 +96,13 @@ public class ModelTextNoteCheckList {
 
     public void setReminAt(String reminAt) {
         this.reminAt = reminAt;
+    }
+
+    public String getShare() {
+        return share;
+    }
+
+    public void setShare(String share) {
+        this.share = share;
     }
 }

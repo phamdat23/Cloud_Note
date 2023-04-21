@@ -13,9 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
-import com.example.cloud_note.Model.ModelReturn;
-import com.example.cloud_note.Model.RegiterReq;
-import com.example.cloud_note.Model.UserModel;
+import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.POST.RegiterReq;
 import com.google.android.material.textfield.TextInputLayout;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -23,9 +22,6 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity {
     private ImageView imgBack;

@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class LoadingActivity extends AppCompatActivity {
+import com.example.cloud_note.DAO.Login;
+import com.example.cloud_note.Model.Model_State_Login;
 
+public class LoadingActivity extends AppCompatActivity {
+    Login dao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,9 +23,19 @@ public class LoadingActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                startActivity(intent);
-                finish();
+                dao = new Login(LoadingActivity.this);
+                Model_State_Login obj = dao.getLogin();
+                Log.d("TAG", "run:IdUser: "+obj.getIdUer());
+                if(obj.getIdUer()!=0){
+                    Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
             }
         },3000);
         setContentView(R.layout.loading_page);

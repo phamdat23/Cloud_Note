@@ -1,13 +1,14 @@
 package com.example.cloud_note.APIs;
 
 import com.example.cloud_note.Model.LoginModel;
-import com.example.cloud_note.Model.LoginReq;
-import com.example.cloud_note.Model.ModelReturn;
-import com.example.cloud_note.Model.ModelTextNote;
-import com.example.cloud_note.Model.ModelTextNoteCheckList;
-import com.example.cloud_note.Model.ModelTextNotePost;
-import com.example.cloud_note.Model.Model_Notes;
-import com.example.cloud_note.Model.RegiterReq;
+import com.example.cloud_note.Model.POST.LoginReq;
+import com.example.cloud_note.Model.GET.ModelGetCheckList;
+import com.example.cloud_note.Model.GET.ModelGetNoteText;
+import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.POST.ModelTextNoteCheckListPost;
+import com.example.cloud_note.Model.POST.ModelTextNotePost;
+import com.example.cloud_note.Model.GET.Model_Notes;
+import com.example.cloud_note.Model.POST.RegiterReq;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -21,10 +22,10 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
@@ -42,7 +43,7 @@ public interface APINote {
             .addInterceptor(httpLoggingInterceptor);
     APINote apiService = new Retrofit.Builder()
             // là dumain cảu api
-            .baseUrl("http://14.225.7.179:18011/")
+            .baseUrl("http://14.225.7.179:18015/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(okbilder.build())
@@ -73,20 +74,44 @@ public interface APINote {
     @Headers({
             "Content-type: Application/json"
     })
-    Observable<ModelReturn> post_text_note (@Path("id") int id ,@Body ModelTextNotePost modelTextNote);
+    Observable<ModelReturn> post_text_note(@Path("id") int id, @Body ModelTextNotePost modelTextNotePost);
+
     @POST("notes/{id}")
     @Headers({
             "Content-type: Application/json"
     })
-    Observable<ModelReturn> post_Check_list (@Path("id") int id , @Body ModelTextNoteCheckList modelTextNoteCheckList);
-    @GET("notes/{id}")
+    Observable<ModelReturn> post_Check_list(@Path("id") int id, @Body ModelTextNoteCheckListPost modelTextNoteCheckList);
+
+    @PATCH("notes/{id}")
     @Headers({
             "Content-type: Application/json"
     })
-    Observable<ModelTextNote> getNoteByIdTypeText(@Path("id") int id);
-    @GET("notes/{id}")
+    Observable<ModelReturn> patch_text_note(@Path("id") int id, @Body ModelTextNotePost modelTextNotePost);
+
+    @PATCH("notes/{id}")
     @Headers({
             "Content-type: Application/json"
     })
-    Observable<ModelTextNote> getNoteByIdTypeCheckList(@Path("id") int id);
+    Observable<ModelReturn> patch_Check_list(@Path("id") int id, @Body ModelTextNoteCheckListPost modelTextNoteCheckList);
+
+    @GET("only/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelGetNoteText> getNoteByIdTypeText(@Path("id") int id);
+
+    @GET("only/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelGetCheckList> getNoteByIdTypeCheckList(@Path("id") int id);
+
+    @DELETE("trunc-notes/{id}")
+    Call<ModelReturn> deleteNote(@Path("id") int id);
+
+    @DELETE("notes/{id}")
+    Call<ModelReturn> moveToTrash(@Path("id") int id);
+
+    @GET("trash/{id}")
+    Observable<Model_Notes> getListTrash(@Path("id") int id);
 }

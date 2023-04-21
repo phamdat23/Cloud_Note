@@ -23,8 +23,10 @@ import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.Adapter.AdapterNote;
+import com.example.cloud_note.DAO.Login;
 import com.example.cloud_note.Model.Model_List_Note;
-import com.example.cloud_note.Model.Model_Notes;
+import com.example.cloud_note.Model.GET.Model_Notes;
+import com.example.cloud_note.Model.Model_State_Login;
 import com.example.cloud_note.R;
 import com.example.cloud_note.SettingActivity;
 
@@ -35,9 +37,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class Fragment_Home extends Fragment {
     private Activity mActivity;
@@ -50,7 +49,8 @@ public class Fragment_Home extends Fragment {
     SharedPreferences sharedPreferences;
     AdapterNote adapterNote;
     Model_Notes note;
-
+    Login daoLogin;
+    Model_State_Login user;
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,12 +67,14 @@ public class Fragment_Home extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_View);
         //====================================================
         context = getContext();
+        daoLogin = new Login(context);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        user = daoLogin.getLogin();
         preferences.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,9 +85,15 @@ public class Fragment_Home extends Fragment {
         getListNote();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getListNote();
+    }
+
     public void getListNote() {
         Log.d("TAG", "getListNote: Step1");
-        APINote.apiService.getListNoteByUser(10).subscribeOn(Schedulers.io())
+        APINote.apiService.getListNoteByUser(user.getIdUer()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Model_Notes>() {
                     @Override
@@ -106,14 +114,11 @@ public class Fragment_Home extends Fragment {
                     @Override
                     public void onComplete() {
                         Toast.makeText(context, "Lấy dữ liệu thành công", Toast.LENGTH_SHORT).show();
-                        Log.d("TAG", "onComplete: list sixe: " + note.getList().get(0).getTitle());
                         List<Model_List_Note> list = new ArrayList<>();
                         list.addAll(note.getList());
-                        Log.d("TAG", "onComplete: Title: " + list.get(0).getTitle());
                         adapterNote = new AdapterNote(list);
-                        Log.d("TAG", "onComplete: Step1 " );
                         recyclerView.setAdapter(adapterNote);
-                        Log.d("TAG", "onComplete: Step2: ");
+
                     }
                 });
     }

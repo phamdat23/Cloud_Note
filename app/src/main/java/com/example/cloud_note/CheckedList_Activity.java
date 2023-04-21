@@ -30,18 +30,17 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
-import com.example.cloud_note.Adapter.AdapterCheckList;
-import com.example.cloud_note.Model.ModelCheckList;
-import com.example.cloud_note.Model.ModelReturn;
-import com.example.cloud_note.Model.ModelTextNoteCheckList;
+import com.example.cloud_note.Adapter.AdapterCheckListPost;
+import com.example.cloud_note.DAO.Login;
+import com.example.cloud_note.Model.Model_State_Login;
+import com.example.cloud_note.Model.POST.ModelCheckListPost;
+import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.POST.ModelTextNoteCheckListPost;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -65,34 +64,24 @@ public class CheckedList_Activity extends AppCompatActivity {
     private TextView tvTimeCreate;
     private ImageView imgTimeCreate;
     private String color_background = "#8FD2EF";
-    List<ModelCheckList> list = new ArrayList<>();
-    SharedPreferences sharedPreferences;
-    AdapterCheckList adapterCheckList;
+    List<ModelCheckListPost> list = new ArrayList<>();
 
-    //private String Date_due;
+    AdapterCheckListPost adapterCheckList;
+
+    Login daoLogin;
+    Model_State_Login user;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checked_list);
-        cardView = findViewById(R.id.cardview_checkList);
-        back = findViewById(R.id.back_from_check_note);
-        done = findViewById(R.id.btn_checklist_done);
-        rcvCheckList = (RecyclerView) findViewById(R.id.rcv_checkList);
-        btnAddCheckList = (Button) findViewById(R.id.btn_addCheckList);
-        title = findViewById(R.id.title_checklist);
-        menu = findViewById(R.id.menu_checked_list);
-        tvDateCreate = (TextView) findViewById(R.id.tv_dateCreate);
-        imgDateCreate = (ImageView) findViewById(R.id.img_dateCreate);
-
-
-        tvTimeCreate = (TextView) findViewById(R.id.tv_timeCreate);
-        imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
-
-        sharedPreferences = getSharedPreferences("Account", MODE_PRIVATE);
+        init();
+        daoLogin = new Login(CheckedList_Activity.this);
+        user = daoLogin.getLogin();
         Save();
         OpenMenu();
-        adapterCheckList = new AdapterCheckList(list);
+        adapterCheckList = new AdapterCheckListPost(list);
         rcvCheckList.setAdapter(adapterCheckList);
         imgDateCreate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,35 +108,48 @@ public class CheckedList_Activity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String title_values = title.getText().toString();
-                Date date = new Date();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
-                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Ha_Noi"));
-                Date_created = simpleDateFormat.format(date);
-                ModelTextNoteCheckList obj = new ModelTextNoteCheckList();
+//                Date date = new Date();
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
+//                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Ha_Noi"));
+//                Date_created = simpleDateFormat.format(date);
+                ModelTextNoteCheckListPost obj = new ModelTextNoteCheckListPost();
                 obj.setTitle(title_values);
                 obj.setData(list);
-                obj.setCreateAt(Date_created);
                 obj.setType("checklist");
-                obj.setPinned(0);
-                obj.setDoneNote(0);
+                obj.setPinned(false);
                 obj.setColor(chuyenMau(color_background));
-                obj.setIdUser(sharedPreferences.getInt("id", -1));
-                obj.setDuaAt(tvDateCreate.getText().toString()+" "+tvTimeCreate.getText().toString());
-                obj.setLock(null);
-                obj.setReminAt(null);
-                if(obj.getTitle()!=null&& obj.getData()!=null){
+                obj.setLock("");
+                obj.setReminAt("");
+                obj.setShare("");
+                obj.setDuaAt("");
+                if (obj.getTitle() != null && obj.getData() != null) {
                     postAPI(obj);
-                }else{
-                    if(obj.getTitle()==null){
-                        Toast.makeText(CheckedList_Activity.this, "Title không được để trống" , Toast.LENGTH_SHORT).show();
+                } else {
+                    if (obj.getTitle() == null) {
+                        Toast.makeText(CheckedList_Activity.this, "Title không được để trống", Toast.LENGTH_SHORT).show();
                     }
-                    if(obj.getData()==null){
-                        Toast.makeText(CheckedList_Activity.this, "Content không được để trống" , Toast.LENGTH_SHORT).show();
+                    if (obj.getData() == null) {
+                        Toast.makeText(CheckedList_Activity.this, "Content không được để trống", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
     }
+
+    private void init() {
+        cardView = findViewById(R.id.cardview_checkList);
+        back = findViewById(R.id.back_from_check_note);
+        done = findViewById(R.id.btn_checklist_done);
+        rcvCheckList = (RecyclerView) findViewById(R.id.rcv_checkList);
+        btnAddCheckList = (Button) findViewById(R.id.btn_addCheckList);
+        title = findViewById(R.id.title_checklist);
+        menu = findViewById(R.id.menu_checked_list);
+        tvDateCreate = (TextView) findViewById(R.id.tv_dateCreate);
+        imgDateCreate = (ImageView) findViewById(R.id.img_dateCreate);
+        tvTimeCreate = (TextView) findViewById(R.id.tv_timeCreate);
+        imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
+    }
+
 
     public void dialogDate() {
         Calendar calendar = Calendar.getInstance();
@@ -166,7 +168,8 @@ public class CheckedList_Activity extends AppCompatActivity {
         );
         datePickerDialog.show();
     }
-    public void dialogTime(){
+
+    public void dialogTime() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
@@ -176,15 +179,15 @@ public class CheckedList_Activity extends AppCompatActivity {
             public void onTimeSet(TimePicker timePicker, int i, int i1) {
                 int hour = i;
                 int minute = i1;
-                tvTimeCreate.setText(hour+":"+minute);
+                tvTimeCreate.setText(hour + ":" + minute);
             }
         }, hourOfDay, minute, false);
         timePickerDialog.show();
     }
 
-    public void postAPI(ModelTextNoteCheckList obj) {
+    public void postAPI(ModelTextNoteCheckListPost obj) {
         ModelReturn modelReturn = new ModelReturn();
-        APINote.apiService.post_Check_list(sharedPreferences.getInt("id",-1), obj)
+        APINote.apiService.post_Check_list(user.getIdUer(), obj)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ModelReturn>() {
@@ -200,12 +203,12 @@ public class CheckedList_Activity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.e("TAG", "onError: "+e);
+                        Log.e("TAG", "onError: " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        if(modelReturn.getStatus()==200){
+                        if (modelReturn.getStatus() == 200) {
                             Toast.makeText(CheckedList_Activity.this, "Success", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(CheckedList_Activity.this, MainActivity.class);
                             startActivity(intent);
@@ -238,15 +241,11 @@ public class CheckedList_Activity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (inputCheckList.getEditText().getText().toString() != "") {
-                    ModelCheckList obj = new ModelCheckList();
+                    ModelCheckListPost obj = new ModelCheckListPost();
                     obj.setContent(inputCheckList.getEditText().getText().toString());
-                    if (cbStatus.isChecked() == true) {
-                        obj.setStatus(1);
-                    } else {
-                        obj.setStatus(0);
-                    }
+                    obj.setStatus(cbStatus.isChecked());
                     list.add(obj);
-                    adapterCheckList = new AdapterCheckList(list);
+                    adapterCheckList = new AdapterCheckListPost(list);
                     rcvCheckList.setAdapter(adapterCheckList);
                     inputCheckList.setError("");
                     dialog.dismiss();

@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Observable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +17,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
+import com.example.cloud_note.DAO.Login;
 import com.example.cloud_note.Model.LoginModel;
-import com.example.cloud_note.Model.LoginReq;
-import com.example.cloud_note.Model.UserModel;
+import com.example.cloud_note.Model.Model_State_Login;
+import com.example.cloud_note.Model.POST.LoginReq;
 import com.google.android.material.textfield.TextInputLayout;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -28,9 +28,6 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
     private TextInputLayout inputUsername;
@@ -38,13 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvSignUp;
     private Button btnLogin;
     LoginModel loginModelm;
-    SharedPreferences sharedPreferences;
-    ActivityResultLauncher activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            save();
-        }
-    });
+    Login daoLogin;
 
 
 
@@ -57,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         inputPasswd = (TextInputLayout) findViewById(R.id.input_passwd);
         tvSignUp = (TextView) findViewById(R.id.tv_signUp);
         btnLogin = (Button) findViewById(R.id.btn_login);
-        sharedPreferences = getSharedPreferences("Account", MODE_PRIVATE);
+        daoLogin = new Login(LoginActivity.this);
         tvSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,25 +100,26 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onError(@NonNull Throwable e) {
                             Log.e("TAG", "onError: "+e );
+                            inputPasswd.setError("Sai mật khẩu");
                         }
 
                         @Override
                         public void onComplete() {
                             if(loginModelm.getStatus()==200){
-                                Toast.makeText(LoginActivity.this, "Đăng nhập thành công" , Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                finish();
+                               long res= daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt()));
+                               if(res>0){
+                                   Toast.makeText(LoginActivity.this, "Đăng nhập thành công" , Toast.LENGTH_SHORT).show();
+                                   Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                   startActivity(intent);
+                                   finish();
+                               }else{
+                                   Toast.makeText(LoginActivity.this, "Lỗi" , Toast.LENGTH_SHORT).show();
+                               }
                             }
 
                         }
                     });
 
     }
-    private void save() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("jwt",loginModelm.getJwt());
-        editor.putInt("id", loginModelm.getUser().getId());
-        editor.commit();
-    }
+
 }

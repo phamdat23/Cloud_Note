@@ -1,6 +1,11 @@
 package com.example.cloud_note.Model;
 
-public class ModelCheckList {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+public class ModelCheckList  {
     private int id;
     private String content;
     private int  status;
@@ -37,4 +42,6 @@ public class ModelCheckList {
     public void setStatus(int status) {
         this.status = status;
     }
+
+
 }
