@@ -1,13 +1,13 @@
-package com.example.cloud_note.Model.POST;
+package com.example.cloud_note.Model.PATCH;
 
 import com.example.cloud_note.Model.Color;
+import com.example.cloud_note.Model.GET.ModelCheckList;
+import com.example.cloud_note.Model.POST.ModelCheckListPost;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class ModelTextNoteCheckListPost {
-
-
+public class ModelPutCheckList {
     @SerializedName("title")
 
     private String title;
@@ -30,14 +30,10 @@ public class ModelTextNoteCheckListPost {
     private String lock;
     @SerializedName("pinned")
 
-    private boolean pinned;
+    private int pinned;
     @SerializedName("remindAt")
 
     private String reminAt;
-    @SerializedName("share")
-    private String share;
-
-
 
     public String getTitle() {
         return title;
@@ -71,7 +67,6 @@ public class ModelTextNoteCheckListPost {
         this.duaAt = duaAt;
     }
 
-
     public List<ModelCheckListPost> getData() {
         return data;
     }
@@ -88,20 +83,12 @@ public class ModelTextNoteCheckListPost {
         this.lock = lock;
     }
 
-    public boolean isPinned() {
+    public int getPinned() {
         return pinned;
     }
 
-    public void setPinned(boolean pinned) {
+    public void setPinned(int pinned) {
         this.pinned = pinned;
-    }
-
-    public String getShare() {
-        return share;
-    }
-
-    public void setShare(String share) {
-        this.share = share;
     }
 
     public String getReminAt() {

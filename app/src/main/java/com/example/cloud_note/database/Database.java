@@ -16,6 +16,10 @@ public class Database extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createTb = "CREATE TABLE Login(idUSER INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,jwt TEXT  );";
         sqLiteDatabase.execSQL(createTb);
+        String createTBSort ="CREATE TABLE Sort(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, sort TEXT)";
+        sqLiteDatabase.execSQL(createTBSort);
+        String insert = "INSERT INTO Sort values (1, 'title')";
+        sqLiteDatabase.execSQL(insert);
     }
 
     @Override

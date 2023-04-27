@@ -1,5 +1,6 @@
 package com.example.cloud_note.Model;
 
+import com.example.cloud_note.Model.GET.ModelCheckList;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;

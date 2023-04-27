@@ -39,6 +39,16 @@ public class    MainActivity extends AppCompatActivity {
         SetUpViewpager();
         add();
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent Main = new Intent(Intent.ACTION_MAIN);
+        Main.addCategory(Intent.CATEGORY_HOME);
+        startActivity(Main);
+        finish();
+    }
+
     private void init_Viewpager(){
         fragment_adapter = new Fragment_Adapter(MainActivity.this);
         viewpager2.setAdapter(fragment_adapter);
@@ -119,11 +129,13 @@ public class    MainActivity extends AppCompatActivity {
         Button button_checkList = dialog.findViewById(R.id.btn_new_checked_list);
         Button button_note = dialog.findViewById(R.id.btn_new_text_note);
         Button button_cancel = dialog.findViewById(R.id.btn_Cancel);
+        Button btn_image_note = dialog.findViewById(R.id.btn_new_image_note);
         button_checkList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, CheckedList_Activity.class);
                 startActivity(intent);
+                dialog.dismiss();
 
             }
         });
@@ -132,6 +144,15 @@ public class    MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, TextNoteActvity.class);
                 startActivity(intent);
+                dialog.dismiss();
+            }
+        });
+        btn_image_note.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, NoteImageActivity.class);
+                startActivity(intent);
+                dialog.dismiss();
             }
         });
         button_cancel.setOnClickListener(new View.OnClickListener() {

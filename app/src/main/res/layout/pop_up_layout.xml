@@ -45,6 +45,19 @@
         android:padding="20dp"
         />
     <Button
+        android:id="@+id/btn_new_image_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/custom_button"
+        android:gravity="center"
+        android:text="Image"
+        android:fontFamily="@font/roboto_medium"
+        android:textAllCaps="false"
+        android:textColor="#007AFF"
+        android:textSize="20dp"
+        android:padding="20dp"
+        />
+    <Button
         android:id="@+id/btn_Cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

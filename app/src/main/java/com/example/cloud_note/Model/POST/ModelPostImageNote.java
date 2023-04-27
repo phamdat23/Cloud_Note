@@ -3,11 +3,7 @@ package com.example.cloud_note.Model.POST;
 import com.example.cloud_note.Model.Color;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-public class ModelTextNoteCheckListPost {
-
-
+public class ModelPostImageNote {
     @SerializedName("title")
 
     private String title;
@@ -23,7 +19,7 @@ public class ModelTextNoteCheckListPost {
 
     @SerializedName("data")
 
-    private List<ModelCheckListPost> data;
+    private String data;
 
     @SerializedName("lock")
 
@@ -36,8 +32,11 @@ public class ModelTextNoteCheckListPost {
     private String reminAt;
     @SerializedName("share")
     private String share;
+    @SerializedName("metaData")
+    private String metaData;
 
-
+    public ModelPostImageNote() {
+    }
 
     public String getTitle() {
         return title;
@@ -71,12 +70,11 @@ public class ModelTextNoteCheckListPost {
         this.duaAt = duaAt;
     }
 
-
-    public List<ModelCheckListPost> getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(List<ModelCheckListPost> data) {
+    public void setData(String data) {
         this.data = data;
     }
 
@@ -96,6 +94,14 @@ public class ModelTextNoteCheckListPost {
         this.pinned = pinned;
     }
 
+    public String getReminAt() {
+        return reminAt;
+    }
+
+    public void setReminAt(String reminAt) {
+        this.reminAt = reminAt;
+    }
+
     public String getShare() {
         return share;
     }
@@ -104,11 +110,11 @@ public class ModelTextNoteCheckListPost {
         this.share = share;
     }
 
-    public String getReminAt() {
-        return reminAt;
+    public String getMetaData() {
+        return metaData;
     }
 
-    public void setReminAt(String reminAt) {
-        this.reminAt = reminAt;
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
     }
 }

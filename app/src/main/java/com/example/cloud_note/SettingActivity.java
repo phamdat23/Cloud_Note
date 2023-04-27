@@ -8,18 +8,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.cloud_note.DAO.Login;
+import com.example.cloud_note.DAO.Sort;
 import com.example.cloud_note.Model.Model_State_Login;
+import com.example.cloud_note.Model.Setting_Sort;
+
+import java.util.ArrayList;
 
 public class SettingActivity extends AppCompatActivity {
     private ImageView imgBack;
     private Button btnLogout;
     Login daoLogin;
     Model_State_Login user;
+    private Spinner spinnerSort;
+    Sort sortTB;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -28,6 +37,38 @@ public class SettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_setting);
         imgBack = (ImageView) findViewById(R.id.img_back);
         btnLogout = (Button) findViewById(R.id.btn_logout);
+        sortTB = new Sort(SettingActivity.this);
+
+        ArrayList<String> listNameSort = new ArrayList<>();
+        listNameSort.add("title");
+        listNameSort.add("createAt");
+        ArrayAdapter<String > adapterSort = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,listNameSort );
+        adapterSort.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerSort = (Spinner) findViewById(R.id.spinner_sort);
+        spinnerSort.setAdapter(adapterSort);
+        Setting_Sort obj = sortTB.getNameSort();
+        for (int i=0;i<listNameSort.size();i++){
+            if(listNameSort.get(i).equalsIgnoreCase(obj.getSortName())){
+                spinnerSort.setSelection(i);
+                spinnerSort.setSelected(true);
+            }
+        }
+        spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                obj.setSortName(listNameSort.get(i));
+                    int res =sortTB.update(obj);
+                    if(res>0){
+
+                    }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
         daoLogin = new Login(SettingActivity.this);
         user = daoLogin.getLogin();
         imgBack.setOnClickListener(new View.OnClickListener() {

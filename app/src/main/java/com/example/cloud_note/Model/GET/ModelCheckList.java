@@ -1,4 +1,4 @@
-package com.example.cloud_note.Model;
+package com.example.cloud_note.Model.GET;
 
 import android.os.Parcel;
 import android.os.Parcelable;

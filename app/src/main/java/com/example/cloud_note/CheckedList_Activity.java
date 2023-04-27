@@ -101,6 +101,12 @@ public class CheckedList_Activity extends AppCompatActivity {
                 dialogAddCheckList(CheckedList_Activity.this);
             }
         });
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
     }
 
     public void Save() {
@@ -198,7 +204,8 @@ public class CheckedList_Activity extends AppCompatActivity {
 
                     @Override
                     public void onNext(@NonNull ModelReturn modelReturn) {
-                        modelReturn = modelReturn;
+                        modelReturn.setStatus(modelReturn.getStatus());
+                        modelReturn.setMessage(modelReturn.getMessage());
                     }
 
                     @Override
@@ -225,9 +232,9 @@ public class CheckedList_Activity extends AppCompatActivity {
         int blue = Integer.parseInt(hexColor.substring(5, 7), 16);
         com.example.cloud_note.Model.Color color = new com.example.cloud_note.Model.Color();
         color.setA((float) 0.87);
-        color.setB(red);
+        color.setB(blue);
         color.setG(green);
-        color.setR(blue);
+        color.setR(red);
         return color;
     }
 

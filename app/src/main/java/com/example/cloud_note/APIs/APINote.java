@@ -1,10 +1,16 @@
 package com.example.cloud_note.APIs;
 
+import com.example.cloud_note.Model.GET.ModelGetImageNote;
+import com.example.cloud_note.Model.GET.ModelImageNote;
 import com.example.cloud_note.Model.LoginModel;
+import com.example.cloud_note.Model.PATCH.ModelPutCheckList;
+import com.example.cloud_note.Model.PATCH.ModelPutTextNote;
 import com.example.cloud_note.Model.POST.LoginReq;
 import com.example.cloud_note.Model.GET.ModelGetCheckList;
 import com.example.cloud_note.Model.GET.ModelGetNoteText;
 import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.POST.ModelPostImage;
+import com.example.cloud_note.Model.POST.ModelPostImageNote;
 import com.example.cloud_note.Model.POST.ModelTextNoteCheckListPost;
 import com.example.cloud_note.Model.POST.ModelTextNotePost;
 import com.example.cloud_note.Model.GET.Model_Notes;
@@ -43,7 +49,7 @@ public interface APINote {
             .addInterceptor(httpLoggingInterceptor);
     APINote apiService = new Retrofit.Builder()
             // là dumain cảu api
-            .baseUrl("http://14.225.7.179:18015/")
+            .baseUrl("http://14.225.7.179:18011/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(okbilder.build())
@@ -81,18 +87,22 @@ public interface APINote {
             "Content-type: Application/json"
     })
     Observable<ModelReturn> post_Check_list(@Path("id") int id, @Body ModelTextNoteCheckListPost modelTextNoteCheckList);
+    @POST("notes/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Observable<ModelReturn> post_image_note(@Path("id") int id , @Body ModelPostImageNote modelPostImageNote);
+    @PATCH("notes/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Observable<ModelReturn> patch_text_note(@Path("id") int id, @Body ModelPutTextNote modelPutTextNote);
 
     @PATCH("notes/{id}")
     @Headers({
             "Content-type: Application/json"
     })
-    Observable<ModelReturn> patch_text_note(@Path("id") int id, @Body ModelTextNotePost modelTextNotePost);
-
-    @PATCH("notes/{id}")
-    @Headers({
-            "Content-type: Application/json"
-    })
-    Observable<ModelReturn> patch_Check_list(@Path("id") int id, @Body ModelTextNoteCheckListPost modelTextNoteCheckList);
+    Observable<ModelReturn> patch_Check_list(@Path("id") int id, @Body ModelPutCheckList modelPutCheckList);
 
     @GET("only/{id}")
     @Headers({
@@ -105,6 +115,11 @@ public interface APINote {
             "Content-type: Application/json"
     })
     Call<ModelGetCheckList> getNoteByIdTypeCheckList(@Path("id") int id);
+    @GET("only/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelGetImageNote> getNoteByIdTypeImage(@Path("id") int id);
 
     @DELETE("trunc-notes/{id}")
     Call<ModelReturn> deleteNote(@Path("id") int id);
@@ -114,4 +129,10 @@ public interface APINote {
 
     @GET("trash/{id}")
     Observable<Model_Notes> getListTrash(@Path("id") int id);
+    @POST("trash-res/{id}")
+    Call<ModelReturn> restore(@Path("id") int id);
+
+    @POST("")
+    Call<ModelPostImage> postImage(@Body String image);
+
 }

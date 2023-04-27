@@ -45,14 +45,21 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/preferences_light" />
             </LinearLayout>
-
-            <SearchView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/search"
-                android:iconifiedByDefault="false"
-                android:queryHint="Tìm kiếm tiêu đề"
-                />
+                android:layout_marginHorizontal="20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardElevation="10dp">
+                <SearchView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/search"
+                    android:iconifiedByDefault="false"
+                    android:queryHint="Tìm kiếm tiêu đề"
+                    />
+            </androidx.cardview.widget.CardView>
+
 
             <ImageButton
                 android:id="@+id/button_sortby"

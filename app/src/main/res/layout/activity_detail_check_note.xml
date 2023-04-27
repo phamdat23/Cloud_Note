@@ -52,7 +52,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="140dp"
         android:layout_marginHorizontal="10dp"
-        app:cardBackgroundColor="#8FD2EF"
         app:cardCornerRadius="10dp"
         app:cardElevation="15dp"
         >
@@ -98,9 +97,10 @@
         android:id="@+id/menu_detail_check_list"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginLeft="176dp"
+
         android:layout_marginTop="736dp"
         android:background="@drawable/baseline_menu_24"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

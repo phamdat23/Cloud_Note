@@ -1,26 +1,38 @@
 package com.example.cloud_note.Adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.Detail_CheckNote;
 import com.example.cloud_note.Detail_Note;
+import com.example.cloud_note.Detail_Note_ImageActivity;
 import com.example.cloud_note.Model.GET.ModelGetCheckList;
+import com.example.cloud_note.Model.GET.ModelGetImageNote;
 import com.example.cloud_note.Model.GET.ModelGetNoteText;
+import com.example.cloud_note.Model.GET.ModelImageNote;
 import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.Model_List_Note;
 import com.example.cloud_note.R;
@@ -36,19 +48,12 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
     Context context;
     List<Model_List_Note> list;
     AdapterCheckList adapterCheckList;
-    String dataText;
-    String title;
-    String createAt;
-    String duaAt;
-    float a;
-    int b;
-    int g;
-    int r;
-    int nodeDone;
+    boolean home;
 
 
-    public AdapterNote(List<Model_List_Note> list) {
+    public AdapterNote(List<Model_List_Note> list, boolean home) {
         this.list = list;
+        this.home = home;
     }
 
     @NonNull
@@ -60,24 +65,50 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
         return new ViewHoderItemNote(v);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHoderItemNote holder, int position) {
         final int index = position;
         Model_List_Note list_note = list.get(index);
-        Log.e("TAG", "onBindViewHolder: IdNote"+list_note.getId());
+        Log.e("TAG", "onBindViewHolder: IdNote" + list_note.getId());
         holder.titleHeader.setText(list_note.getTitle());
         holder.createDate.setText(list_note.getCreateAt() + "");
         holder.dueDate.setText(list_note.getDuaAt() + "");
+        holder.imgBackGround.setVisibility(View.VISIBLE);
         String hex = ChuyenMau(list_note.getColor().getA(), list_note.getColor().getR(), list_note.getColor().getG(), list_note.getColor().getB());
-        holder.RecyclerCardview.setCardBackgroundColor(Color.parseColor(hex + ""));
+        if(!hex.equalsIgnoreCase("#000")){
+            holder.RecyclerCardview.setCardBackgroundColor(Color.parseColor(hex + ""));
+        }else{
+            holder.RecyclerCardview.setCardBackgroundColor(Color.parseColor("#ffffff"));
+        }
         if (list_note.getDoneNote() == 0) {
             holder.state.setText("Not Done");
+            holder.state.setVisibility(View.INVISIBLE);
         } else if (list_note.getDoneNote() == 1) {
             holder.state.setText("Done");
+            holder.state.setVisibility(View.INVISIBLE);
+        }
+        if (home == true) {
+            holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+            holder.imgActive2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialogDelete(context, list_note.getId(), index);
+                }
+            });
+        } else if (home == false) {
+            holder.imgActive1.setImageResource(R.drawable.baseline_restore_24);
+            holder.imgActive2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialogDelete2(context, list_note.getId(), index);
+                }
+            });
         }
         if (list_note.getType().equalsIgnoreCase("text")) {
             holder.rcvCheckList.setVisibility(View.GONE);
             holder.contentText.setVisibility(View.VISIBLE);
+            holder.imgBackGround.setVisibility(View.GONE);
             Intent intent = new Intent(context, Detail_Note.class);
             intent.putExtra("id", list_note.getId());
             intent.putExtra("colorA", list_note.getColor().getA());
@@ -88,30 +119,42 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             APINote.apiService.getNoteByIdTypeText(list_note.getId()).enqueue(new Callback<ModelGetNoteText>() {
                 @Override
                 public void onResponse(Call<ModelGetNoteText> call, Response<ModelGetNoteText> response) {
-                    if(response.body()!=null&&response.isSuccessful()){
+                    if (response.body() != null && response.isSuccessful()) {
                         ModelGetNoteText obj = response.body();
                         holder.contentText.setText(obj.getModelTextNote().getData());
-                        intent.putExtra("data",obj.getModelTextNote().getData());
+                        intent.putExtra("data", obj.getModelTextNote().getData());
                     }
 
                 }
 
                 @Override
                 public void onFailure(Call<ModelGetNoteText> call, Throwable t) {
-                    Log.e("TAG", "onFailure: "+t.getMessage() );
+                    Log.e("TAG", "onFailure: " + t.getMessage());
                 }
             });
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    context.startActivity(intent);
-                }
-            });
+            if(home==true){
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        context.startActivity(intent);
+                    }
+                });
+            }else if(home==false){
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        restore(context, list_note.getId(), index);
+                    }
+                });
+
+            }
+
 
 
         } else if (list_note.getType().equalsIgnoreCase("checklist")) {
             holder.rcvCheckList.setVisibility(View.VISIBLE);
             holder.contentText.setVisibility(View.GONE);
+            holder.imgBackGround.setVisibility(View.GONE);
             Intent intent = new Intent(context, Detail_CheckNote.class);
             intent.putExtra("id", list_note.getId());
 
@@ -124,31 +167,93 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 @Override
                 public void onResponse(Call<ModelGetCheckList> call, Response<ModelGetCheckList> response) {
                     ModelGetCheckList obj = response.body();
-                    adapterCheckList = new AdapterCheckList(obj.getModelTextNoteCheckList().getData());
+                    adapterCheckList = new AdapterCheckList(obj.getModelTextNoteCheckList().getData(), false);
                     holder.rcvCheckList.setAdapter(adapterCheckList);
-                   // intent.putExtra("data", new ArrayList<>(obj.getModelTextNoteCheckList().getData()));
+                    // intent.putExtra("data", new ArrayList<>(obj.getModelTextNoteCheckList().getData()));
                 }
 
                 @Override
                 public void onFailure(Call<ModelGetCheckList> call, Throwable t) {
+                    Log.e("TAG", "onFailure: " + t.getMessage());
+                }
+            });
+            if(home==true){
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        context.startActivity(intent);
+                    }
+                });
+            }else if(home==false){
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        restore(context, list_note.getId(), index);
+                    }
+                });
+
+            }
+
+        }
+        else if(list_note.getType().equalsIgnoreCase("image")){
+            holder.rcvCheckList.setVisibility(View.GONE);
+            holder.contentText.setVisibility(View.VISIBLE);
+            holder.imgBackGround.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(context, Detail_Note_ImageActivity.class);
+            intent.putExtra("id", list_note.getId());
+            intent.putExtra("colorA", list_note.getColor().getA());
+            intent.putExtra("colorR", list_note.getColor().getR());
+            intent.putExtra("colorG", list_note.getColor().getG());
+            intent.putExtra("colorB", list_note.getColor().getB());
+            APINote.apiService.getNoteByIdTypeImage(list_note.getId()).enqueue(new Callback<ModelGetImageNote>() {
+
+                @SuppressLint("ResourceAsColor")
+                @Override
+                public void onResponse(Call<ModelGetImageNote> call, Response<ModelGetImageNote> response) {
+                    if(response.isSuccessful()&response.body()!=null){
+                        ModelGetImageNote obj = response.body();
+                        holder.contentText.setText(obj.getNote().getData());
+                        Log.e("TAG", "onResponse: img"+ obj.getNote().getMetaData());
+                        if(obj.getNote().getMetaData()!=null && obj.getNote().getMetaData()!=""){
+                            holder.imgBackGround.setVisibility(View.VISIBLE);
+                            holder.titleHeader.setTextColor(R.color.white);
+                            holder.contentText.setTextColor(R.color.white);
+                            holder.dueDate.setTextColor(R.color.white);
+                            holder.createDate.setTextColor(R.color.white);
+                            holder.Due.setTextColor(R.color.white);
+                            holder.Created.setTextColor(R.color.white);
+                            Glide.with(holder.imgBackGround).load(obj.getNote().getMetaData()).into(holder.imgBackGround);
+                        }else{
+                            holder.imgBackGround.setVisibility(View.GONE);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ModelGetImageNote> call, Throwable t) {
                     Log.e("TAG", "onFailure: "+t.getMessage() );
                 }
             });
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    context.startActivity(intent);
-                }
-            });
+            if(home==true){
+                holder.imgActive1.setImageResource(R.drawable.info);
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        context.startActivity(intent);
+                    }
+                });
+            }else if(home==false){
+                holder.imgActive1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        restore(context, list_note.getId(), index);
+                    }
+                });
 
-        }
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                dialogDelete(context, list_note.getId(), index);
-                return true;
             }
-        });
+        }
+
+
 
     }
 
@@ -158,73 +263,148 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
     }
 
 
-   public void dialogDelete(Context context, int id, int index){
-           final Dialog dialog = new Dialog(context, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
-           dialog.setContentView(R.layout.dialog_delete_note);
-           Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
-           Button btn_delete = dialog.findViewById(R.id.btn_delete);
-           Button btn_move_trash = dialog.findViewById(R.id.btn_move_trash);
-           btn_cancel.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                   dialog.dismiss();
-               }
-           });
-           btn_delete.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                   APINote.apiService.deleteNote(id).enqueue(new Callback<ModelReturn>() {
-                       @Override
-                       public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
-                           if(response.isSuccessful()&response.body()!=null){
-                               ModelReturn r = response.body();
-                               if(r.getStatus()==200){
-                                   list.remove(index);
-                                   notifyDataSetChanged();
-                                   notifyItemRangeRemoved(index, list.size());
-                                   Toast.makeText(context, r.getMessage() , Toast.LENGTH_SHORT).show();
-                                   dialog.dismiss();
-                               }
+    private void dialogDelete(Context context, int id, int index) {
+        final Dialog dialog = new Dialog(context, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
+        dialog.setContentView(R.layout.dialog_delete_note);
+        Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
+        Button btn_delete = dialog.findViewById(R.id.btn_delete);
+        Button btn_move_trash = dialog.findViewById(R.id.btn_move_trash);
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                APINote.apiService.deleteNote(id).enqueue(new Callback<ModelReturn>() {
+                    @Override
+                    public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
+                        if (response.isSuccessful() & response.body() != null) {
+                            ModelReturn r = response.body();
+                            if (r.getStatus() == 200) {
+                                list.remove(index);
+                                notifyDataSetChanged();
+                                notifyItemRangeRemoved(index, list.size());
+                                Toast.makeText(context, r.getMessage(), Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
 
-                           }
-                       }
+                        }
+                    }
 
-                       @Override
-                       public void onFailure(Call<ModelReturn> call, Throwable t) {
-                           Log.e("TAG", "onFailure: "+t.getMessage() );
-                       }
-                   });
-               }
-           });
-           btn_move_trash.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View view) {
-                    APINote.apiService.moveToTrash(id).enqueue(new Callback<ModelReturn>() {
-                        @Override
-                        public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
-                            if(response.isSuccessful()&response.body()!=null){
-                                ModelReturn r = response.body();
-                                if(r.getStatus()==200){
-                                    list.remove(index);
-                                    notifyDataSetChanged();
-                                    notifyItemRangeRemoved(index, list.size());
-                                    Toast.makeText(context, r.getMessage() , Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
-                                }
+                    @Override
+                    public void onFailure(Call<ModelReturn> call, Throwable t) {
+                        Log.e("TAG", "onFailure: " + t.getMessage());
+                    }
+                });
+            }
+        });
+        btn_move_trash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                APINote.apiService.moveToTrash(id).enqueue(new Callback<ModelReturn>() {
+                    @Override
+                    public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
+                        if (response.isSuccessful() & response.body() != null) {
+                            ModelReturn r = response.body();
+                            if (r.getStatus() == 200) {
+                                list.remove(index);
+                                notifyDataSetChanged();
+                                notifyItemRangeRemoved(index, list.size());
+                                Toast.makeText(context, r.getMessage(), Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
 
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ModelReturn> call, Throwable t) {
+                        Log.e("TAG", "onFailure: " + t.getMessage());
+                    }
+                });
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void dialogDelete2(Context context, int idNote, int index) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Delete");
+        builder.setMessage("Bạn có muốn xóa vĩ viễn note này không ");
+        builder.setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                APINote.apiService.deleteNote(idNote).enqueue(new Callback<ModelReturn>() {
+                    @Override
+                    public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
+                        if (response.isSuccessful() & response.body() != null) {
+                            ModelReturn obj = response.body();
+                            if (obj.getStatus() == 200) {
+                                list.remove(index);
+                                notifyDataSetChanged();
+                                notifyItemRangeRemoved(index, list.size());
+                                dialog.dismiss();
                             }
                         }
+                    }
 
-                        @Override
-                        public void onFailure(Call<ModelReturn> call, Throwable t) {
-                            Log.e("TAG", "onFailure: "+t.getMessage() );
-                        }
-                    });
-               }
-           });
+                    @Override
+                    public void onFailure(Call<ModelReturn> call, Throwable t) {
+                        Log.e("TAG", "onFailure: " + t.getMessage());
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+    private void restore(Context context, int idNote, int index){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("RESTORE");
+        builder.setMessage("Bạn có muốn khôi phục lại note này? ");
+        builder.setPositiveButton("Restore", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+               APINote.apiService.restore(idNote).enqueue(new Callback<ModelReturn>() {
+                   @Override
+                   public void onResponse(Call<ModelReturn> call, Response<ModelReturn> response) {
+                       if(response.isSuccessful()&response.body()!=null){
+                           ModelReturn obj = response.body();
+                           if(obj.getStatus()==200){
+                               list.remove(index);
+                               notifyDataSetChanged();
+                               notifyItemRangeRemoved(index, list.size());
+                               dialog.dismiss();
+                           }
+                       }
+                   }
 
-           dialog.show();
-       }
+                   @Override
+                   public void onFailure(Call<ModelReturn> call, Throwable t) {
+                       Log.e("TAG", "onFailure: "+t.getMessage() );
+                   }
+               });
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
 
 
@@ -250,6 +430,9 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
         private TextView dueDate;
         private CardView RecyclerCardview;
         private RecyclerView rcvCheckList;
+        private ImageView imgActive1;
+        private ImageView imgActive2;
+        private  ImageView imgBackGround;
 
 
         public ViewHoderItemNote(@NonNull View itemView) {
@@ -263,6 +446,10 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             dueDate = (TextView) itemView.findViewById(R.id.due_date);
             RecyclerCardview = (CardView) itemView.findViewById(R.id.Recycler_Cardview);
             rcvCheckList = (RecyclerView) itemView.findViewById(R.id.rcv_checkList);
+            imgActive1 = (ImageView) itemView.findViewById(R.id.img_Active1);
+            imgActive2 = (ImageView) itemView.findViewById(R.id.img_Active2);
+            imgBackGround = itemView.findViewById(R.id.img_backGround);
+
         }
     }
 }

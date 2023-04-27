@@ -115,6 +115,7 @@ public class TextNoteActvity extends AppCompatActivity {
                 Date = simpleDateFormat.format(date);
                 ModelTextNotePost obj = new ModelTextNotePost();
                 obj.setColor(chuyenMau(color_background));
+                Log.e("TAG", "onClick:Color: "+chuyenMau(color_background).getA()+":"+chuyenMau(color_background).getR()+":"+chuyenMau(color_background).getG()+":"+chuyenMau(color_background).getB()+":");
                 obj.setTitle(title_values);
                 obj.setData(content_values);
                 obj.setType("text");
@@ -336,14 +337,18 @@ public class TextNoteActvity extends AppCompatActivity {
     }
 
     public com.example.cloud_note.Model.Color chuyenMau(String hexColor) {
+        Log.e("TAG", "chuyenMau: "+hexColor);
         int red = Integer.parseInt(hexColor.substring(1, 3), 16);
         int green = Integer.parseInt(hexColor.substring(3, 5), 16);
         int blue = Integer.parseInt(hexColor.substring(5, 7), 16);
+        Log.e("TAG", "chuyenMau:R "+red);
+        Log.e("TAG", "chuyenMau: G"+green);
+        Log.e("TAG", "chuyenMau: B"+blue);
         com.example.cloud_note.Model.Color color = new com.example.cloud_note.Model.Color();
         color.setA((float) 0.87);
-        color.setB(red);
+        color.setB(blue);
         color.setG(green);
-        color.setR(blue);
+        color.setR(red);
         return color;
     }
 }

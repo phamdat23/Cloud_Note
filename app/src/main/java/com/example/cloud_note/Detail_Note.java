@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.Model.GET.ModelGetNoteText;
 import com.example.cloud_note.Model.GET.ModelReturn;
+import com.example.cloud_note.Model.PATCH.ModelPutTextNote;
 import com.example.cloud_note.Model.POST.ModelTextNotePost;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -86,7 +87,7 @@ public class Detail_Note extends AppCompatActivity {
             public void onResponse(Call<ModelGetNoteText> call, Response<ModelGetNoteText> response) {
                 if(response.isSuccessful()&response.body()!=null){
                     ModelGetNoteText obj = response.body();
-                    ModelTextNotePost update = new ModelTextNotePost();
+                    ModelPutTextNote update = new ModelPutTextNote();
                     title.setText(obj.getModelTextNote().getTitle());
                     content.setText(obj.getModelTextNote().getData());
                     String hex = ChuyenMau(colorA, colorR, colorG, colorB);
@@ -97,7 +98,7 @@ public class Detail_Note extends AppCompatActivity {
                            // ModelTextNotePost update = new ModelTextNotePost();
                             update.setData(content.getText().toString());
                             update.setTitle(title.getText().toString());
-//                            update.setType(obj.getModelTextNote().getType());
+                            update.setType(obj.getModelTextNote().getType());
                             if(cardView.getCardBackgroundColor().getDefaultColor()==Color.parseColor(hex)){
                                 Log.d("TAG", "onCreate:Color1: k thay đổi màu  ");
                                 update.setColor(new com.example.cloud_note.Model.Color(colorA, colorB, colorG, colorR));
@@ -108,9 +109,13 @@ public class Detail_Note extends AppCompatActivity {
 
                             update.setLock("");
                             update.setReminAt("");
-                            update.setShare("");
+                            update.setPinned(0);
                             if(tvDateCreate.getText().toString()==""&&tvTimeCreate.getText().toString()==""){
-                                update.setDuaAt("");
+                                if(obj.getModelTextNote().getDuaAt()==""){
+                                    update.setDuaAt("");
+                                }else{
+                                    update.setDuaAt(obj.getModelTextNote().getDuaAt());
+                                }
                             }else{
                                 update.setDuaAt(tvDateCreate.getText().toString()+" "+tvTimeCreate.getText().toString());
                             }
@@ -142,7 +147,7 @@ public class Detail_Note extends AppCompatActivity {
 
 
     }
-    private void updateNodeTextNote(ModelTextNotePost obj, int id) {
+    private void updateNodeTextNote(ModelPutTextNote obj, int id) {
         ModelReturn modelR = new ModelReturn();
         APINote.apiService.patch_text_note(id, obj)
                 .subscribeOn(Schedulers.io())
@@ -166,9 +171,10 @@ public class Detail_Note extends AppCompatActivity {
 
                     @Override
                     public void onComplete() {
+                        Toast.makeText(Detail_Note.this, modelR.getMessage() , Toast.LENGTH_SHORT).show();
+                        onBackPressed();
                         if (modelR.getStatus() == 200) {
-                            Toast.makeText(Detail_Note.this, modelR.getMessage() , Toast.LENGTH_SHORT).show();
-                            onBackPressed();
+
                         }
                     }
                 });
@@ -190,9 +196,9 @@ public class Detail_Note extends AppCompatActivity {
         int blue = Integer.parseInt(hexColor.substring(5, 7), 16);
         com.example.cloud_note.Model.Color color = new com.example.cloud_note.Model.Color();
         color.setA((float) 0.87);
-        color.setB(red);
+        color.setB(blue);
         color.setG(green);
-        color.setR(blue);
+        color.setR(red);
         return color;
     }
 
