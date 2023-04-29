@@ -14,7 +14,7 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String createTb = "CREATE TABLE Login(idUSER INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,jwt TEXT  );";
+        String createTb = "CREATE TABLE Login(idUSER INTEGER NOT NULL PRIMARY KEY ,jwt TEXT, state INTEGER  );";
         sqLiteDatabase.execSQL(createTb);
         String createTBSort ="CREATE TABLE Sort(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, sort TEXT)";
         sqLiteDatabase.execSQL(createTBSort);

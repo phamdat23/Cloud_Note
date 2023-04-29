@@ -27,6 +27,7 @@ public class Login {
             while (!cursor.isAfterLast()){
                 obj.setIdUer(cursor.getInt(0));
                 obj.setJwt(cursor.getString(1));
+                obj.setState(cursor.getInt(2));
                 cursor.moveToNext();
             }
             cursor.close();
@@ -37,8 +38,15 @@ public class Login {
         ContentValues contentValues = new ContentValues();
         contentValues.put("idUSER", obj.getIdUer());
         contentValues.put("jwt", obj.getJwt());
+        contentValues.put("state", obj.getState());
         return db.insert("Login", null, contentValues);
     }
+    public int update(Model_State_Login obj){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("state", obj.getState());
+        return db.update("Login", contentValues, "idUSER=?", new String[]{obj.getIdUer()+""});
+    }
+
     public int delete(Model_State_Login obj){
         return db.delete("Login","idUSER=?", new String[]{obj.getIdUer()+""});
     }

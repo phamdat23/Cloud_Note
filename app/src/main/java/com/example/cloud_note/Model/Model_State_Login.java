@@ -3,13 +3,15 @@ package com.example.cloud_note.Model;
 public class Model_State_Login {
     private int idUer;
     private String jwt;
+    private int state;
 
     public Model_State_Login() {
     }
 
-    public Model_State_Login(int idUer, String jwt) {
+    public Model_State_Login(int idUer, String jwt, int state) {
         this.idUer = idUer;
         this.jwt = jwt;
+        this.state = state;
     }
 
     public int getIdUer() {
@@ -26,5 +28,13 @@ public class Model_State_Login {
 
     public void setJwt(String jwt) {
         this.jwt = jwt;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }

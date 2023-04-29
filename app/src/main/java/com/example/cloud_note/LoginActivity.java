@@ -106,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete() {
                             if(loginModelm.getStatus()==200){
-                               long res= daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt()));
+                               long res= daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt(), 0));
                                if(res>0){
                                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công" , Toast.LENGTH_SHORT).show();
                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);

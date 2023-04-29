@@ -3,43 +3,38 @@ package com.example.cloud_note.Model.POST;
 import com.example.cloud_note.Model.Color;
 import com.google.gson.annotations.SerializedName;
 
-public class ModelTextNotePost {
-    @SerializedName("title")
-
-    private String title;
-    @SerializedName("color")
-
-    private Color color;
-    @SerializedName("type")
-
-    private String type;
-    @SerializedName("dueAt")
-
-    private String duaAt;
-
+public class ModelPostScreenShot {
     @SerializedName("data")
-
     private String data;
 
-    @SerializedName("lock")
+    @SerializedName("color")
+    private Color color;
 
+    @SerializedName("title")
+    private String title;
+    @SerializedName("type")
+    private String type;
+    @SerializedName("metaData")
+    private String images;
+
+    @SerializedName("dueAt")
+    private String duaAt;
+    @SerializedName("lock")
     private String lock;
     @SerializedName("pinned")
-
     private boolean pinned;
     @SerializedName("remindAt")
-
     private String reminAt;
+
     @SerializedName("share")
     private String share;
 
-
-    public String getTitle() {
-        return title;
+    public String getData() {
+        return data;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public Color getColor() {
@@ -50,6 +45,25 @@ public class ModelTextNotePost {
         this.color = color;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(String images) {
+        this.images = images;
+    }
+
+    public ModelPostScreenShot() {
+    }
+
     public String getType() {
         return type;
     }
@@ -58,20 +72,13 @@ public class ModelTextNotePost {
         this.type = type;
     }
 
+
     public String getDuaAt() {
         return duaAt;
     }
 
     public void setDuaAt(String duaAt) {
         this.duaAt = duaAt;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
     }
 
     public String getLock() {

@@ -11,6 +11,7 @@ import com.example.cloud_note.Model.GET.ModelGetNoteText;
 import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.POST.ModelPostImage;
 import com.example.cloud_note.Model.POST.ModelPostImageNote;
+import com.example.cloud_note.Model.POST.ModelPostScreenShot;
 import com.example.cloud_note.Model.POST.ModelTextNoteCheckListPost;
 import com.example.cloud_note.Model.POST.ModelTextNotePost;
 import com.example.cloud_note.Model.GET.Model_Notes;
@@ -132,7 +133,7 @@ public interface APINote {
     @POST("trash-res/{id}")
     Call<ModelReturn> restore(@Path("id") int id);
 
-    @POST("")
-    Call<ModelPostImage> postImage(@Body String image);
+    @POST("notes/{id}")
+    Call<ModelReturn> postScreenShot(@Path("id") int id,@Body ModelPostScreenShot image);
 
 }
