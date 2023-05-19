@@ -96,6 +96,7 @@ public class SettingActivity extends AppCompatActivity {
                 if (res > 0) {
                     Intent intent = new Intent(SettingActivity.this, LoginActivity.class);
                     startActivity(intent);
+                    finish();
                 }
             }
         });

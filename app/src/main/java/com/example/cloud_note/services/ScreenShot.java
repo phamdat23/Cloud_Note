@@ -1,21 +1,30 @@
 package com.example.cloud_note.services;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.DAO.Login;
@@ -24,6 +33,15 @@ import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.Model_State_Login;
 import com.example.cloud_note.Model.POST.ModelPostImage;
 import com.example.cloud_note.Model.POST.ModelPostScreenShot;
+import com.example.cloud_note.NoteImageActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -47,6 +66,7 @@ import retrofit2.Callback;
 public class ScreenShot extends Service {
     Login daoLogin;
     Model_State_Login user;
+    String TAG="zzzzzzzz";
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -58,35 +78,55 @@ public class ScreenShot extends Service {
 //        return super.onStartCommand(intent, flags, startId);
         daoLogin = new Login(getApplicationContext());
         user = daoLogin.getLogin();
-        List<String > listBase64 = convertScreenshotsToBase64();
-        for (String item : listBase64){
-            AsyncTask<Void , Void, String> asyncTask = new AsyncTask<Void, Void, String>() {
-                @Override
-                protected String doInBackground(Void... voids) {
-                    return sendBase64(item);
-                }
+        Log.e(TAG, "onStartCommand: start service" );
 
-                @Override
-                protected void onPostExecute(String s) {
-                    super.onPostExecute(s);
-                    Log.e("TAG", "onPostExecute: link image"+s );
-                    ModelPostScreenShot obj = new ModelPostScreenShot();
-                    obj.setTitle("");
-                    obj.setColor(new Color(0,0,0,0));
-                    obj.setData("");
-                    obj.setType("screenshot");
-                    obj.setImages(s);
-                    obj.setPinned(false);
-                    obj.setLock("");
-                    obj.setDuaAt("");
-                    obj.setShare("");
-                    obj.setReminAt("");
-                    postScreenShot(obj);
+        new AsyncTask<Void, Void , List<String>>(){
+            @Override
+            protected List<String> doInBackground(Void... voids) {
+                List<String> list = convertScreenshotsToBase64();
+                Log.e(TAG, "doInBackground: "+list.size() );
+                return list;
+            }
+
+            @Override
+            protected void onPostExecute(List<String> strings) {
+                super.onPostExecute(strings);
+                List<String > listBase64 = strings;
+                Log.e(TAG, "onStartCommand: getList String base64 "+listBase64.size() );
+                for (String item : listBase64){
+
+                    Log.e(TAG, "onStartCommand: join loop " );
+                    new AsyncTask<Void, Void, String>() {
+                        @Override
+                        protected String doInBackground(Void... voids) {
+                            Log.e(TAG, "doInBackground: join doIn" );
+                            String linkImage = sendBase64(item);
+                            return linkImage;
+                        }
+
+                        @Override
+                        protected void onPostExecute(String s) {
+                            super.onPostExecute(s);
+                            Log.e("TAG", "onPostExecute: link image"+s );
+                            ModelPostScreenShot obj = new ModelPostScreenShot();
+                            obj.setTitle("");
+                            obj.setColor(new Color(0,0,0,0));
+                            obj.setType("screenshot");
+                            obj.setImages(s);
+                            obj.setNotePublic(0);
+                            obj.setPinned(false);
+                            obj.setLock("");
+                            obj.setDuaAt("");
+                            obj.setShare("");
+                            obj.setReminAt("");
+                            scanlTextImage(item, obj);
+                        }
+                    }.execute();
                 }
-            };
-            asyncTask.execute();
-        }
-        return  START_NOT_STICKY;
+            }
+        }.execute();
+
+        return  START_STICKY;
 
     }
     private void postScreenShot (ModelPostScreenShot obj){
@@ -130,17 +170,18 @@ public class ScreenShot extends Service {
                 projection,
                 selection,
                 selectionArgs,
-                MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC"
+                null
         );
 
         if (cursor != null) {
-            int idColumn = cursor.getColumnIndex(MediaStore.Images.ImageColumns._ID);
+            //int idColumn = cursor.getColumnIndex(MediaStore.Images.ImageColumns._ID);
             int dataColumn = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 String imagePath = cursor.getString(dataColumn);
-                Log.e("TAG", "convertScreenshotsToBase64: "+imagePath);
-                Bitmap bm = BitmapFactory.decodeFile(imagePath);
+               String image2 =  imagePath.replace("/emulated/0/","/self/primary/");
+                Log.e("TAG", "convertScreenshotsToBase642: "+image2);
+                Bitmap bm = BitmapFactory.decodeFile(image2);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); // nén ảnh
                 byte[] b = baos.toByteArray();
@@ -154,8 +195,57 @@ public class ScreenShot extends Service {
         }
         return listBase64;
     }
+    private void scanlTextImage(String base64, ModelPostScreenShot obj) {
+        final String[] textScanl = {""};
+        Log.e(TAG, "scanlTextImage: join scanle text image start" );
+        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        InputImage inputImage = InputImage.fromBitmap(decodedByte, 0);
+        TextRecognizer textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+        Task<Text> result = textRecognizer.process(inputImage).addOnSuccessListener(new OnSuccessListener<Text>() {
+            @Override
+            public void onSuccess(Text text) {
+
+                StringBuilder result = new StringBuilder();
+                String blockText;
+                for (Text.TextBlock block : text.getTextBlocks()) {
+                    blockText = block.getText();
+                    Point[] blockCornerPoint = block.getCornerPoints();
+                    Rect blockFrame = block.getBoundingBox();
+                    for (Text.Line line : block.getLines()) {
+                        String lineTExt = line.getText();
+                        Point[] lineCornerPoint = line.getCornerPoints();
+                        Rect lineRect = line.getBoundingBox();
+                        for (Text.Element element : line.getElements()) {
+                            String elementText = element.getText();
+                            result.append(elementText);
+                        }
+
+                    }
+
+                }
+                textScanl[0] = String.valueOf(result);
+                Log.e(TAG, "scanlTextImage: join scanle text image end" );
+                obj.setData(textScanl[0]);
+                postScreenShot(obj);
+                Log.e("TAG", "onSuccess: trả về text trong image:  "+textScanl[0] );
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("TAG", "onFailure: "+e.getMessage() );
+               // Toast.makeText(getApplicationContext(), "Fail to detect text from image.." + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+
+
+    }
 
     private String sendBase64(String base64String) {
+        Log.e(TAG, "sendBase64: join send image" );
         OkHttpClient client = new OkHttpClient();
         String key ="6374d7c9cfa9f0cb372098bdf76d806e";
         String boundary = "Boundary-" + UUID.randomUUID().toString();

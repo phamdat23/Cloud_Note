@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
@@ -63,6 +64,7 @@ public class TextNoteActvity extends AppCompatActivity {
     com.example.cloud_note.Model.Color objColor;
     Login daoLogin;
     Model_State_Login user;
+    KProgressHUD isloading;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -73,6 +75,13 @@ public class TextNoteActvity extends AppCompatActivity {
 
         daoLogin = new Login(TextNoteActvity.this);
         user = daoLogin.getLogin();
+        isloading = new KProgressHUD(TextNoteActvity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         imgDateCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +186,7 @@ public class TextNoteActvity extends AppCompatActivity {
 
 
     public void postTextNote(ModelTextNotePost obj) {
-
+isloading.show();
         APINote.apiService.post_text_note(user.getIdUer(), obj)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -195,15 +204,19 @@ public class TextNoteActvity extends AppCompatActivity {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         Log.e("TAG", "onError: " + e);
+                        isloading.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
                         if (MmodelReturn.getStatus() == 200) {
+                            isloading.dismiss();
                             Toast.makeText(TextNoteActvity.this, "Success", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(TextNoteActvity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+//                            Intent intent = new Intent(TextNoteActvity.this, MainActivity.class);
+//                            startActivity(intent);
+//                            finish();
+                            onBackPressed();
+
                         }
                     }
                 });

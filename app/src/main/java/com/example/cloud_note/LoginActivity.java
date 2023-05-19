@@ -23,6 +23,7 @@ import com.example.cloud_note.Model.Model_State_Login;
 import com.example.cloud_note.Model.POST.LoginReq;
 import com.google.android.material.textfield.TextInputLayout;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
@@ -36,7 +37,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     LoginModel loginModelm;
     Login daoLogin;
+    Model_State_Login user;
 
+    KProgressHUD hud;
 
 
     @SuppressLint("MissingInflatedId")
@@ -49,6 +52,14 @@ public class LoginActivity extends AppCompatActivity {
         tvSignUp = (TextView) findViewById(R.id.tv_signUp);
         btnLogin = (Button) findViewById(R.id.btn_login);
         daoLogin = new Login(LoginActivity.this);
+        user = daoLogin.getLogin();
+         hud = KProgressHUD.create(LoginActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         tvSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,6 +93,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     public void login (){
+        hud.show();
         LoginReq loginReq = new LoginReq(inputUsername.getEditText().getText().toString(), inputPasswd.getEditText().getText().toString());
             APINote.apiService.login(loginReq)
                     .subscribeOn(Schedulers.io())
@@ -99,6 +111,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(@NonNull Throwable e) {
+                            hud.dismiss();
                             Log.e("TAG", "onError: "+e );
                             inputPasswd.setError("Sai mật khẩu");
                         }
@@ -108,6 +121,7 @@ public class LoginActivity extends AppCompatActivity {
                             if(loginModelm.getStatus()==200){
                                long res= daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt(), 0));
                                if(res>0){
+                                   hud.dismiss();
                                    Toast.makeText(LoginActivity.this, "Đăng nhập thành công" , Toast.LENGTH_SHORT).show();
                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                    startActivity(intent);
@@ -122,4 +136,17 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if(user.getIdUer()==0){
+            Intent Main = new Intent(Intent.ACTION_MAIN);
+            Main.addCategory(Intent.CATEGORY_HOME);
+            startActivity(Main);
+            finish();
+        }else{
+            super.onBackPressed();
+        }
+
+    }
 }

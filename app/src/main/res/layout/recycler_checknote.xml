@@ -11,14 +11,14 @@
         android:layout_height="40dp"
         />
 
-    <TextView
+    <EditText
         android:fontFamily="@font/roboto_medium"
         android:textSize="15dp"
         android:textColor="@color/black"
         android:id="@+id/tv_checkNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@null"
+
         android:text="CheckNotelist"
        />
     <ImageView

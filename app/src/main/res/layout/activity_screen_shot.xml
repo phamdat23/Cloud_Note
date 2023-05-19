@@ -26,20 +26,19 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="45dp">
                 <ImageButton
-                    android:id="@+id/screenShot"
+                    android:id="@+id/back"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="15dp"
-                    android:background="@drawable/baseline_settings_24" />
+                    android:background="@drawable/left_back_button" />
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/roboto_medium"
-                    android:text="MY NOTE"
-
+                    android:text="SCREENSHOTS"
                     android:textColor="#6A53CC"
                     android:textFontWeight="1000"
                     android:textSize="30dp"
@@ -68,18 +67,11 @@
                     android:id="@+id/search"
                     android:iconifiedByDefault="false"
                     android:queryHint="Tìm kiếm tiêu đề"
+                    android:layout_marginBottom="5dp"
                     />
 
             </androidx.cardview.widget.CardView>
 
-            <ImageButton
-                android:id="@+id/button_sortby"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="22dp"
-                android:layout_marginTop="25dp"
-                android:background="@color/white"
-                android:src="@drawable/button_sort_by" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_View"
@@ -87,7 +79,7 @@
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:orientation="vertical"
-                tools:listitem="@layout/custom_layout" />
+                tools:listitem="@layout/item_screen_shots" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -13,21 +16,26 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.Adapter.AdapterCheckList;
+import com.example.cloud_note.Adapter.AdapterCheckListPost;
 import com.example.cloud_note.Model.GET.ModelCheckList;
 import com.example.cloud_note.Model.GET.ModelGetCheckList;
 import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.PATCH.ModelPutCheckList;
 import com.example.cloud_note.Model.POST.ModelCheckListPost;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
@@ -53,7 +61,10 @@ public class Detail_CheckNote extends AppCompatActivity {
     int colorB;
     AdapterCheckList adapterCheckList;
     private ImageButton btnDetailChecklistDone;
-
+    private Button btnAddCheckList;
+KProgressHUD isloading;
+    List<ModelCheckListPost> checkListUpdate = new ArrayList<>();
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,20 +76,36 @@ public class Detail_CheckNote extends AppCompatActivity {
         title = findViewById(R.id.title_detail_checklist);
         recyclerView = findViewById(R.id.recycler_checklist);
         btnDetailChecklistDone = (ImageButton) findViewById(R.id.btn_detail_checklist_done);
+        btnAddCheckList = (Button) findViewById(R.id.btn_addCheckList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         getData(intent);
         String hex = ChuyenMau(colorA, colorR, colorG, colorB);
         cardView.setCardBackgroundColor(Color.parseColor(hex));
         ModelGetCheckList obj = new ModelGetCheckList();
+        isloading= new KProgressHUD(Detail_CheckNote.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         APINote.apiService.getNoteByIdTypeCheckList(idNote).enqueue(new Callback<ModelGetCheckList>() {
             @Override
             public void onResponse(Call<ModelGetCheckList> call, Response<ModelGetCheckList> response) {
+                isloading.show();
                 if (response.body() != null && response.isSuccessful()) {
+                    isloading.dismiss();
                     obj.setModelTextNoteCheckList(response.body().getModelTextNoteCheckList());
                     title.setText(obj.getModelTextNoteCheckList().getTitle());
                     adapterCheckList = new AdapterCheckList(obj.getModelTextNoteCheckList().getData(), true);
                     recyclerView.setAdapter(adapterCheckList);
+                    btnAddCheckList.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialogAddCheckList(Detail_CheckNote.this, obj.getModelTextNoteCheckList().getData());
+                        }
+                    });
                     btnDetailChecklistDone.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -91,7 +118,8 @@ public class Detail_CheckNote extends AppCompatActivity {
                                 Log.d("TAG", "onCreate:Color2: thay đổi màu  ");
                                 update.setColor(chuyenMauARGB(color_background));
                             }
-                            List<ModelCheckListPost> checkListUpdate = new ArrayList<>();
+
+
                             for (ModelCheckList x : obj.getModelTextNoteCheckList().getData()) {
                                 ModelCheckListPost item = new ModelCheckListPost();
                                 item.setContent(x.getContent());
@@ -119,14 +147,47 @@ public class Detail_CheckNote extends AppCompatActivity {
             public void onFailure(Call<ModelGetCheckList> call, Throwable t) {
                 Toast.makeText(Detail_CheckNote.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("TAG", "onFailure: " + t.getMessage());
+                isloading.dismiss();
             }
         });
 
 
         Back();
     }
+    public void dialogAddCheckList(Context context, List<ModelCheckList> list) {
+        final Dialog dialog = new Dialog(context, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
+        dialog.setContentView(R.layout.dialog_add_check_list);
+        TextInputLayout inputCheckList = (TextInputLayout) dialog.findViewById(R.id.input_checkList);
+        Button btnAdd = (Button) dialog.findViewById(R.id.btn_add);
+        CheckBox cbStatus = dialog.findViewById(R.id.cb_status);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (inputCheckList.getEditText().getText().toString() != "") {
+                    ModelCheckList obj = new ModelCheckList();
+                    obj.setContent(inputCheckList.getEditText().getText().toString());
+
+                    if(cbStatus.isChecked()==true){
+                        obj.setStatus(1);
+                    }else{
+                        obj.setStatus(0);
+                    }
+                    list.add(obj);
+                    AdapterCheckList adapterCheckList1 = new AdapterCheckList(list, true);
+                    recyclerView.setAdapter(adapterCheckList1);
+                    inputCheckList.setError("");
+                    dialog.dismiss();
+                } else {
+                    inputCheckList.setError("Không được để trống");
+                }
+
+            }
+        });
+        dialog.show();
+    }
 
     private void pathCheckList(ModelPutCheckList obj) {
+        isloading.show();
         ModelReturn r = new ModelReturn();
         APINote.apiService.patch_Check_list(idNote, obj).subscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -145,14 +206,22 @@ public class Detail_CheckNote extends AppCompatActivity {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         Log.e("TAG", "onError: " + e.getMessage());
+                        isloading.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
                         if (r.getStatus() == 200) {
-                            Intent intent = new Intent(Detail_CheckNote.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                            isloading.dismiss();
+//                            Intent intent = new Intent(Detail_CheckNote.this, MainActivity.class);
+//                            startActivity(intent);
+//                            finish();
+                           runOnUiThread(new Runnable() {
+                               @Override
+                               public void run() {
+                                   onBackPressed();
+                               }
+                           });
                         }
                     }
                 });

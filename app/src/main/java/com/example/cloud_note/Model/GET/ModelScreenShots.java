@@ -1,51 +1,42 @@
-package com.example.cloud_note.Model.POST;
+package com.example.cloud_note.Model.GET;
 
 import com.example.cloud_note.Model.Color;
 import com.google.gson.annotations.SerializedName;
 
-public class ModelPostImageNote {
+public class ModelScreenShots {
+    @SerializedName("idNote")
+    private int id;
     @SerializedName("title")
-
     private String title;
+    @SerializedName("data")
+    private String data;
+    @SerializedName("metaData")
+    private String metaData;
     @SerializedName("color")
-
     private Color color;
     @SerializedName("type")
-
     private String type;
-    @SerializedName("dueAt")
-
-    private String duaAt;
-
-    @SerializedName("data")
-
-    private String data;
-
+    @SerializedName("doneNote")
+    private int doneNote;
+    @SerializedName("idUser")
+    private int idUser;
     @SerializedName("lock")
-
     private String lock;
     @SerializedName("pinned")
-
-    private boolean pinned;
+    private int pinned;
     @SerializedName("remindAt")
-
     private String reminAt;
     @SerializedName("share")
     private String share;
-    @SerializedName("metaData")
-    private String metaData;
-    @SerializedName("notePublic")
-    private int notePublic;
+    @SerializedName("createAt")
+    private String createAt;
 
-    public ModelPostImageNote() {
+    public int getId() {
+        return id;
     }
 
-    public int getNotePublic() {
-        return notePublic;
-    }
-
-    public void setNotePublic(int notePublic) {
-        this.notePublic = notePublic;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -54,6 +45,22 @@ public class ModelPostImageNote {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public String getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
     }
 
     public Color getColor() {
@@ -72,20 +79,28 @@ public class ModelPostImageNote {
         this.type = type;
     }
 
-    public String getDuaAt() {
-        return duaAt;
+    public int getDoneNote() {
+        return doneNote;
     }
 
-    public void setDuaAt(String duaAt) {
-        this.duaAt = duaAt;
+    public void setDoneNote(int doneNote) {
+        this.doneNote = doneNote;
     }
 
-    public String getData() {
-        return data;
+    public int getIdUser() {
+        return idUser;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
+
+    public String getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
     }
 
     public String getLock() {
@@ -96,11 +111,11 @@ public class ModelPostImageNote {
         this.lock = lock;
     }
 
-    public boolean isPinned() {
+    public int getPinned() {
         return pinned;
     }
 
-    public void setPinned(boolean pinned) {
+    public void setPinned(int pinned) {
         this.pinned = pinned;
     }
 
@@ -118,13 +133,5 @@ public class ModelPostImageNote {
 
     public void setShare(String share) {
         this.share = share;
-    }
-
-    public String getMetaData() {
-        return metaData;
-    }
-
-    public void setMetaData(String metaData) {
-        this.metaData = metaData;
     }
 }

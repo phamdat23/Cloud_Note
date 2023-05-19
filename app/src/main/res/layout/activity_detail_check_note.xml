@@ -91,6 +91,15 @@
                 android:layout_marginHorizontal="10dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginBottom="15dp" />
+            <Button
+                android:id="@+id/btn_addCheckList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginVertical="10dp"
+                android:backgroundTint="#339EFF"
+                android:text="Add note"
+                android:textColor="@color/white" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
     <ImageButton

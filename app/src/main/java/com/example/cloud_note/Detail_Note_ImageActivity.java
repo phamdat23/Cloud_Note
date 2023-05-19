@@ -38,11 +38,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.cloud_note.APIs.APINote;
 import com.example.cloud_note.Model.GET.ModelGetImageNote;
+import com.example.cloud_note.Model.GET.ModelGetScreenShots;
+import com.example.cloud_note.Model.GET.ModelScreenShots;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,6 +70,8 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
     int colorR;
     int colorG;
     int colorB;
+    String type;
+    KProgressHUD isloading;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +92,13 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
         menuTextNote = (ImageButton) findViewById(R.id.menu_text_note);
         btnDone.setVisibility(View.INVISIBLE);
         btnUpload.setVisibility(View.INVISIBLE);
+        isloading = new KProgressHUD(Detail_Note_ImageActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         getData(intentData);
         String hex = ChuyenMau(colorA, colorR, colorB, colorB);
         if(!hex.equalsIgnoreCase("#000")){
@@ -115,28 +127,54 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
                 Menu_Dialog(Gravity.BOTTOM);
             }
         });
-        APINote.apiService.getNoteByIdTypeImage(idNote).enqueue(new Callback<ModelGetImageNote>() {
-            @Override
-            public void onResponse(Call<ModelGetImageNote> call, Response<ModelGetImageNote> response) {
-                if(response.isSuccessful()&response.body()!=null){
-                    ModelGetImageNote obj = response.body();
-                    titleName.setText(obj.getNote().getTitle());
-                    addContentText.setText(obj.getNote().getData());
-
-                    if(obj.getNote().getMetaData()!=null){
-                        imgBackground.setVisibility(View.VISIBLE);
-                        Glide.with(imgBackground).load(obj.getNote().getMetaData()).into(imgBackground);
-                    }else{
-                        imgBackground.setVisibility(View.GONE);
+        if(type.equalsIgnoreCase("image")){
+            APINote.apiService.getNoteByIdTypeImage(idNote).enqueue(new Callback<ModelGetImageNote>() {
+                @Override
+                public void onResponse(Call<ModelGetImageNote> call, Response<ModelGetImageNote> response) {
+                    isloading.show();
+                    if(response.isSuccessful()&response.body()!=null){
+                        isloading.dismiss();
+                        ModelGetImageNote obj = response.body();
+                        titleName.setText(obj.getNote().getTitle());
+                        addContentText.setText(obj.getNote().getData());
+                        if(obj.getNote().getMetaData()!=null){
+                            imgBackground.setVisibility(View.VISIBLE);
+                            Glide.with(imgBackground).load(obj.getNote().getMetaData()).into(imgBackground);
+                        }else{
+                            imgBackground.setVisibility(View.GONE);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ModelGetImageNote> call, Throwable t) {
-                Log.e("TAG", "onFailure: "+t.getMessage() );
-            }
-        });
+                @Override
+                public void onFailure(Call<ModelGetImageNote> call, Throwable t) {
+                    Log.e("TAG", "onFailure: "+t.getMessage() );
+                    isloading.dismiss();
+                }
+            });
+        }else{
+            APINote.apiService.getNoteByIdTypeScreenshot(idNote).enqueue(new Callback<ModelGetScreenShots>() {
+                @Override
+                public void onResponse(Call<ModelGetScreenShots> call, Response<ModelGetScreenShots> response) {
+                    isloading.show();
+                    if(response.isSuccessful()&response.body()!=null){
+                        isloading.dismiss();
+                        ModelGetScreenShots item = response.body();
+                        titleName.setText(item.getNotes().getTitle());
+                        addContentText.setText(item.getNotes().getData());
+                        Glide.with(imgBackground).load(item.getNotes().getMetaData()).into(imgBackground);
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ModelGetScreenShots> call, Throwable t) {
+                    Log.e("TAG", "onFailure: "+t.getMessage() );
+                    isloading.dismiss();
+                }
+            });
+        }
+
 
 
 
@@ -147,6 +185,7 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
         colorR = intent.getIntExtra("colorR", 0);
         colorG = intent.getIntExtra("colorG", 0);
         colorB = intent.getIntExtra("colorB", 0);
+        type = intent.getStringExtra("type");
 
 
     }

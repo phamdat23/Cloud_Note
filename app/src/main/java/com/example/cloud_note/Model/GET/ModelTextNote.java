@@ -18,31 +18,23 @@ public class ModelTextNote {
 
     private Color color;
     @SerializedName("type")
-
     private String type;
     @SerializedName("dueAt")
-
     private String duaAt;
     @SerializedName("createAt")
-
     private String createAt;
     @SerializedName("data")
 
     private String data;
     @SerializedName("doneNote")
-
     private int doneNote;
     @SerializedName("idUser")
-
     private int idUser;
     @SerializedName("lock")
-
     private String lock;
     @SerializedName("pinned")
-
     private int pinned;
     @SerializedName("remindAt")
-
     private String reminAt;
     @SerializedName("share")
     private String share;

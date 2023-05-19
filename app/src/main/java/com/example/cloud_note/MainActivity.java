@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         daoLogin = new Login(getApplicationContext());
         user=daoLogin.getLogin();
         if(user.getState()==0){
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requesPermisstion();
             } else {
                 allet();
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 //                for (File x : listFile){
 //                    Log.e("TAG", "onStartCommand: "+ x.getPath());
 //                }
-
+                Log.e("TAG", "onClick: start service" );
                 startService(new Intent(getApplicationContext(), ScreenShot.class));
 
             }
@@ -160,13 +161,13 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
     private void requesPermisstion() {
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 999);
+        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 999);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 999 & grantResults[0] == 0) {
+        if (requestCode == 999 & grantResults.length>0 & grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             // đồng ý
                 allet();
         } else {

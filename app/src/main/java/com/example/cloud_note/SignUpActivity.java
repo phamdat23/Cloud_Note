@@ -17,6 +17,7 @@ import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.POST.RegiterReq;
 import com.google.android.material.textfield.TextInputLayout;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
@@ -33,6 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView tvSignIn;
     private Button btnRegiter;
     private ModelReturn modelReturnm;
+    KProgressHUD isloading;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -49,6 +51,10 @@ public class SignUpActivity extends AppCompatActivity {
 
 
         btnRegiter = (Button) findViewById(R.id.btn_regiter);
+        isloading = new KProgressHUD(getApplicationContext())
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f).setLabel("Please wait");
 
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity {
         btnRegiter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(validate()==true){
+                if (validate() == true) {
                     Regiter();
                 }
             }
@@ -74,6 +80,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void Regiter() {
+        isloading.show();
         RegiterReq regiterReq = new RegiterReq(inputUsername.getEditText().getText().toString(), inputPasswd.getEditText().getText().toString(), inputYourName.getEditText().getText().toString(), inputEmail.getEditText().getText().toString());
         APINote.apiService.Regiter(regiterReq)
                 .subscribeOn(Schedulers.io())
@@ -91,14 +98,16 @@ public class SignUpActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.e("TAG", "onError: "+e.getMessage() );
+                        isloading.dismiss();
+                        Log.e("TAG", "onError: " + e.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.d("TAG", "onComplete: Đăng ký thành công" );
-                        if(modelReturnm.getStatus()==200){
-                            Toast.makeText(SignUpActivity.this, "Đăng ký thành công" , Toast.LENGTH_SHORT).show();
+                        Log.d("TAG", "onComplete: Đăng ký thành công");
+                        if (modelReturnm.getStatus() == 200) {
+                            isloading.dismiss();
+                            Toast.makeText(SignUpActivity.this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                             startActivity(intent);
                             finish();

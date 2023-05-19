@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -47,16 +48,16 @@ public class Fragment_Delete extends Fragment {
     private SearchView search;
 
 
-
     private ImageButton buttonSortby;
     private RecyclerView recyclerView;
     Context context;
     AdapterNote adapterNote;
-Login daoLogin;
-Model_State_Login user;
+    Login daoLogin;
+    Model_State_Login user;
     Sort daoSort;
     Setting_Sort sort;
     boolean isSort = true;
+    KProgressHUD isloading;
     @SuppressLint("MissingInflatedId")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,7 +68,14 @@ Model_State_Login user;
         search = (SearchView) view.findViewById(R.id.search);
         context = getContext();
         daoLogin = new Login(context);
-        daoSort= new Sort(context);
+        daoSort = new Sort(context);
+        isloading = new KProgressHUD(context)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         return view;
     }
 
@@ -94,8 +102,9 @@ Model_State_Login user;
         sort = daoSort.getNameSort();
     }
 
-    private void getData(int idUser){
-        Model_Notes obj= new Model_Notes();
+    private void getData(int idUser) {
+        isloading.show();
+        Model_Notes obj = new Model_Notes();
         APINote.apiService.getListTrash(idUser).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Model_Notes>() {
@@ -111,11 +120,12 @@ Model_State_Login user;
 
                     @Override
                     public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                        Log.e("TAG", "onError: "+e.getMessage() );
+                        Log.e("TAG", "onError: " + e.getMessage());
                     }
 
                     @Override
                     public void onComplete() {
+                        isloading.dismiss();
                         adapterNote = new AdapterNote(obj.getList(), false);
                         recyclerView.setAdapter(adapterNote);
 
@@ -123,7 +133,7 @@ Model_State_Login user;
                             @Override
                             public void onClick(View view) {
                                 List<Model_List_Note> listSort = sort(sort.getSortName(), obj.getList());
-                                Log.e("TAG", "onClick: sắp sếp theo ngày " );
+                                Log.e("TAG", "onClick: sắp sếp theo ngày ");
                                 adapterNote = new AdapterNote(listSort, true);
                                 recyclerView.setAdapter(adapterNote);
 //                                if(isSort==true){
@@ -145,11 +155,11 @@ Model_State_Login user;
 
                             @Override
                             public boolean onQueryTextChange(String newText) {
-                                if(newText.trim()!=""){
+                                if (newText.trim() != "") {
                                     List<Model_List_Note> listQuery = search(newText, obj.getList());
                                     adapterNote = new AdapterNote(listQuery, false);
                                     recyclerView.setAdapter(adapterNote);
-                                }else{
+                                } else {
                                     adapterNote = new AdapterNote(obj.getList(), false);
                                     recyclerView.setAdapter(adapterNote);
                                 }
@@ -160,27 +170,29 @@ Model_State_Login user;
                     }
                 });
     }
-    private List<Model_List_Note> search(String query, List<Model_List_Note> list ){
+
+    private List<Model_List_Note> search(String query, List<Model_List_Note> list) {
         List<Model_List_Note> listQuery = new ArrayList<>();
-        for (int i=0;i< list.size();i++){
-            if(list.get(i).getTitle().toLowerCase().contains(query.toLowerCase())){
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getTitle().toLowerCase().contains(query.toLowerCase())) {
                 listQuery.add(list.get(i));
-                Log.d("TAG", "search: Title:"+list.get(i).getTitle());
+                Log.d("TAG", "search: Title:" + list.get(i).getTitle());
 //                Log.d("TAG", "search: color:"+list.get(i).getColor().getG());
 //                Log.d("TAG", "search: color:"+list.get(i).getColor().getB());
             }
         }
-        return  listQuery;
+        return listQuery;
     }
-    private List<Model_List_Note> sort (String querySort, List<Model_List_Note> list){
+
+    private List<Model_List_Note> sort(String querySort, List<Model_List_Note> list) {
         List<Model_List_Note> listSort = new ArrayList<>();
-        switch (querySort){
+        switch (querySort) {
             case "title":
                 Comparator<Model_List_Note> compTitle = new Comparator<Model_List_Note>() {
                     @Override
                     public int compare(Model_List_Note model_list_note, Model_List_Note t1) {
-                        String title1 = model_list_note.getTitle().split(" ")[model_list_note.getTitle().split(" ").length-1];
-                        String title2 = t1.getTitle().split(" ")[t1.getTitle().split(" ").length-1];
+                        String title1 = model_list_note.getTitle().split(" ")[model_list_note.getTitle().split(" ").length - 1];
+                        String title2 = t1.getTitle().split(" ")[t1.getTitle().split(" ").length - 1];
                         return title1.compareToIgnoreCase(title2);
                     }
                 };
@@ -195,8 +207,8 @@ Model_State_Login user;
                             Date date1 = simpleDateFormat.parse(model_list_note.getCreateAt());
                             Date date2 = simpleDateFormat.parse(t1.getCreateAt());
                             return date2.compareTo(date1);
-                        }catch (ParseException e){
-                            Log.e("TAG", "compare: "+e.getMessage() );
+                        } catch (ParseException e) {
+                            Log.e("TAG", "compare: " + e.getMessage());
                         }
                         return 0;
 
@@ -208,8 +220,8 @@ Model_State_Login user;
                 Comparator<Model_List_Note> compTitle2 = new Comparator<Model_List_Note>() {
                     @Override
                     public int compare(Model_List_Note model_list_note, Model_List_Note t1) {
-                        String title1 = model_list_note.getTitle().split(" ")[model_list_note.getTitle().split(" ").length-1];
-                        String title2 = t1.getTitle().split(" ")[t1.getTitle().split(" ").length-1];
+                        String title1 = model_list_note.getTitle().split(" ")[model_list_note.getTitle().split(" ").length - 1];
+                        String title2 = t1.getTitle().split(" ")[t1.getTitle().split(" ").length - 1];
                         return title1.compareToIgnoreCase(title2);
                     }
                 };

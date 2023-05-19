@@ -37,7 +37,16 @@ public class ModelTextNoteCheckListPost {
     @SerializedName("share")
     private String share;
 
+    @SerializedName("notePublic")
+    private int notePublic;
 
+    public int getNotePublic() {
+        return notePublic;
+    }
+
+    public void setNotePublic(int notePublic) {
+        this.notePublic = notePublic;
+    }
 
     public String getTitle() {
         return title;

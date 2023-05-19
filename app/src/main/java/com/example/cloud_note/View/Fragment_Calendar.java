@@ -33,6 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -47,7 +48,7 @@ public class Fragment_Calendar extends Fragment {
     Calendar calendar;
     private Date datePick;
     AdapterNote adapterNote;
-
+    KProgressHUD isloading;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,6 +60,13 @@ public class Fragment_Calendar extends Fragment {
         rcvLitsNote = (RecyclerView) view.findViewById(R.id.rcv_litsNote);
         context = getContext();
         daoLogin = new Login(context);
+        isloading = new KProgressHUD(context)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         return view;
     }
 
@@ -130,6 +138,7 @@ public class Fragment_Calendar extends Fragment {
                         calenderView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                             @Override
                             public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
+                                isloading.show();
                                 DateFormat simpleDateFormat = new SimpleDateFormat("yyyy-mm-dd");
                                 String dateClick = i + "-" + (i1 + 1) + "-" + i2;
                                 List<Model_List_Note> listByDate = new ArrayList<>();
@@ -139,16 +148,18 @@ public class Fragment_Calendar extends Fragment {
                                     for (Model_List_Note x : obj.getList()) {
                                         Date date = simpleDateFormat.parse(x.getCreateAt());
                                         if(datePick.compareTo(date)==0) {
-                                            listByDate.add(x);
-                                            Log.e("TAG", "onSelectedDayChange: add list" );
+                                            if(!x.getType().equalsIgnoreCase("screenshot")){
+                                                listByDate.add(x);
+                                                Log.e("TAG", "onSelectedDayChange: add list" );
+                                            }
                                         }
                                     }
                                 }catch (ParseException e){
                                     Log.e("TAG", "onSelectedDayChange: "+e.getMessage() );
                                 }
-                                Toast.makeText(context, "listDateSize: "+listByDate.size() , Toast.LENGTH_SHORT).show();
                                 adapterNote = new AdapterNote(listByDate, true);
                                 rcvLitsNote.setAdapter(adapterNote);
+                                isloading.dismiss();
 
                             }
                         });

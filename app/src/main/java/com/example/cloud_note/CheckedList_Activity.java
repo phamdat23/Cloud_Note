@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observer;
@@ -70,6 +71,7 @@ public class CheckedList_Activity extends AppCompatActivity {
 
     Login daoLogin;
     Model_State_Login user;
+    KProgressHUD isloading;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -83,18 +85,14 @@ public class CheckedList_Activity extends AppCompatActivity {
         OpenMenu();
         adapterCheckList = new AdapterCheckListPost(list);
         rcvCheckList.setAdapter(adapterCheckList);
-        imgDateCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialogDate();
-            }
-        });
-        imgTimeCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialogTime();
-            }
-        });
+      isloading = new KProgressHUD(CheckedList_Activity.this)
+              .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+              .setLabel("Please wait")
+              .setDetailsLabel("")
+              .setCancellable(true)
+              .setAnimationSpeed(2)
+              .setDimAmount(0.5f);
+
         btnAddCheckList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,6 +111,7 @@ public class CheckedList_Activity extends AppCompatActivity {
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 String title_values = title.getText().toString();
 //                Date date = new Date();
 //                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a");
@@ -192,6 +191,7 @@ public class CheckedList_Activity extends AppCompatActivity {
     }
 
     public void postAPI(ModelTextNoteCheckListPost obj) {
+        isloading.show();
         ModelReturn modelReturn = new ModelReturn();
         APINote.apiService.post_Check_list(user.getIdUer(), obj)
                 .subscribeOn(Schedulers.io())
@@ -210,17 +210,17 @@ public class CheckedList_Activity extends AppCompatActivity {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
+                        isloading.dismiss();
                         Log.e("TAG", "onError: " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        if (modelReturn.getStatus() == 200) {
-                            Toast.makeText(CheckedList_Activity.this, "Success", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(CheckedList_Activity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
+                        isloading.dismiss();
+                        Toast.makeText(CheckedList_Activity.this, "Success", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(CheckedList_Activity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
 
                     }
                 });

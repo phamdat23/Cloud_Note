@@ -26,6 +26,7 @@ import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.PATCH.ModelPutTextNote;
 import com.example.cloud_note.Model.POST.ModelTextNotePost;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -58,7 +59,7 @@ public class Detail_Note extends AppCompatActivity {
 
 
     //Database
-
+KProgressHUD isloading;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -81,11 +82,20 @@ public class Detail_Note extends AppCompatActivity {
         imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
 
         getData(intent);
+        isloading= new KProgressHUD(Detail_Note.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
 
         APINote.apiService.getNoteByIdTypeText(idNote).enqueue(new Callback<ModelGetNoteText>() {
             @Override
             public void onResponse(Call<ModelGetNoteText> call, Response<ModelGetNoteText> response) {
+                isloading.show();
                 if(response.isSuccessful()&response.body()!=null){
+                    isloading.dismiss();
                     ModelGetNoteText obj = response.body();
                     ModelPutTextNote update = new ModelPutTextNote();
                     title.setText(obj.getModelTextNote().getTitle());
@@ -129,6 +139,7 @@ public class Detail_Note extends AppCompatActivity {
             @Override
             public void onFailure(Call<ModelGetNoteText> call, Throwable t) {
                 Log.e("TAG", "onFailure: "+t.getMessage() );
+                isloading.dismiss();
             }
         });
 
@@ -148,6 +159,7 @@ public class Detail_Note extends AppCompatActivity {
 
     }
     private void updateNodeTextNote(ModelPutTextNote obj, int id) {
+        isloading.show();
         ModelReturn modelR = new ModelReturn();
         APINote.apiService.patch_text_note(id, obj)
                 .subscribeOn(Schedulers.io())
@@ -171,8 +183,10 @@ public class Detail_Note extends AppCompatActivity {
 
                     @Override
                     public void onComplete() {
+                        isloading.dismiss();
                         Toast.makeText(Detail_Note.this, modelR.getMessage() , Toast.LENGTH_SHORT).show();
                         onBackPressed();
+
                         if (modelR.getStatus() == 200) {
 
                         }

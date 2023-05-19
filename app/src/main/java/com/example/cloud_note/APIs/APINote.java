@@ -1,7 +1,9 @@
 package com.example.cloud_note.APIs;
 
 import com.example.cloud_note.Model.GET.ModelGetImageNote;
+import com.example.cloud_note.Model.GET.ModelGetScreenShots;
 import com.example.cloud_note.Model.GET.ModelImageNote;
+import com.example.cloud_note.Model.GET.ModelScreenShots;
 import com.example.cloud_note.Model.LoginModel;
 import com.example.cloud_note.Model.PATCH.ModelPutCheckList;
 import com.example.cloud_note.Model.PATCH.ModelPutTextNote;
@@ -19,6 +21,8 @@ import com.example.cloud_note.Model.POST.RegiterReq;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -58,7 +62,6 @@ public interface APINote {
 
 
     @POST("login")
-
     @Headers({
             "Content-type: Application/json"
     })
@@ -76,7 +79,11 @@ public interface APINote {
             "Content-type: Application/json"
     })
     Observable<Model_Notes> getListNoteByUser(@Path("id") int id);
-
+    @GET("notes/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<Objects> getListNoteByUser2(@Path("id") int id);
     @POST("notes/{id}")
     @Headers({
             "Content-type: Application/json"
@@ -121,6 +128,11 @@ public interface APINote {
             "Content-type: Application/json"
     })
     Call<ModelGetImageNote> getNoteByIdTypeImage(@Path("id") int id);
+    @GET("only/{id}")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelGetScreenShots>getNoteByIdTypeScreenshot(@Path("id") int id);
 
     @DELETE("trunc-notes/{id}")
     Call<ModelReturn> deleteNote(@Path("id") int id);

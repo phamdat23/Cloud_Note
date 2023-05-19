@@ -3,32 +3,45 @@ package com.example.cloud_note;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+
+import android.graphics.Point;
+import android.graphics.Rect;
+
 import android.graphics.drawable.ColorDrawable;
+
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+
 import android.view.Gravity;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,16 +55,34 @@ import com.example.cloud_note.Model.GET.ModelReturn;
 import com.example.cloud_note.Model.Model_State_Login;
 import com.example.cloud_note.Model.POST.ModelPostImageNote;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -80,8 +111,10 @@ public class NoteImageActivity extends AppCompatActivity {
     String imageBase64 = "";
     Login daoUser;
     Model_State_Login user;
-    String fieldString;
-
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_GALLERY = 2;
+    String currentPhotoPath="";
+    KProgressHUD hud;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +135,13 @@ public class NoteImageActivity extends AppCompatActivity {
         daoUser = new Login(NoteImageActivity.this);
         user = daoUser.getLogin();
         imgBackground.setVisibility(View.GONE);
+        hud = KProgressHUD.create(NoteImageActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
+                .setCancellable(true)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f);
         cardViewTextnote.setCardBackgroundColor(Color.parseColor(color_background));
         backFromTextNote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,18 +152,14 @@ public class NoteImageActivity extends AppCompatActivity {
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ActivityCompat.checkSelfPermission(NoteImageActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    requesPermisstion();
-                } else {
-                    pickImage();
-
-                }
+                opendDialogImage();
 
             }
         });
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hud.show();
                 String title = titleName.getText().toString();
                 String content = addContentText.getText().toString();
                 ModelPostImageNote obj = new ModelPostImageNote();
@@ -137,12 +173,7 @@ public class NoteImageActivity extends AppCompatActivity {
                 obj.setDuaAt("");
                 obj.setReminAt("");
                 if (imageBase64 != "") {
-                    getimage(imageBase64);
-//                    obj.setMetaData("https://i.ibb.co/px585wQ/d5vi8b0-9925c151-97d4-4318-8a23-af91c8f561d5.jpg");
-//                    if (title != "" && content != "") {
-//                        postImageNote(obj);
-//                    }
-                    AsyncTask<Void, Void , String > async = new AsyncTask<Void, Void, String>() {
+                    AsyncTask<Void, Void, String> async = new AsyncTask<Void, Void, String>() {
                         @Override
                         protected String doInBackground(Void... voids) {
                             return img();
@@ -151,7 +182,7 @@ public class NoteImageActivity extends AppCompatActivity {
                         @Override
                         protected void onPostExecute(String s) {
                             super.onPostExecute(s);
-                            Log.e("TAG", "onPostExecute: "+s );
+                            Log.e("TAG", "onPostExecute: " + s);
                             obj.setMetaData(s);
                             if (title != "" && content != "") {
                                 postImageNote(obj);
@@ -160,7 +191,6 @@ public class NoteImageActivity extends AppCompatActivity {
                         }
                     };
                     async.execute();
-
 
 
                 } else {
@@ -178,9 +208,12 @@ public class NoteImageActivity extends AppCompatActivity {
                 Menu_Dialog(Gravity.BOTTOM);
             }
         });
+
+
     }
 
     private void postImageNote(ModelPostImageNote obj) {
+        hud.show();
         ModelReturn r = new ModelReturn();
         APINote.apiService.post_image_note(user.getIdUer(), obj).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -204,6 +237,7 @@ public class NoteImageActivity extends AppCompatActivity {
                     @Override
                     public void onComplete() {
                         if (r.getStatus() == 200) {
+                            hud.dismiss();
                             Toast.makeText(NoteImageActivity.this, r.getMessage(), Toast.LENGTH_SHORT).show();
                             onBackPressed();
                         }
@@ -214,7 +248,7 @@ public class NoteImageActivity extends AppCompatActivity {
     private String img() {
         OkHttpClient client = new OkHttpClient();
         String base64String = imageBase64;
-        String key ="6374d7c9cfa9f0cb372098bdf76d806e";
+        String key = "6374d7c9cfa9f0cb372098bdf76d806e";
         String boundary = "Boundary-" + UUID.randomUUID().toString();
         MediaType mediaType = MediaType.parse("multipart/form-data; boundary=" + boundary);
         RequestBody requestBody = new MultipartBody.Builder()
@@ -226,7 +260,7 @@ public class NoteImageActivity extends AppCompatActivity {
                 .url("https://api.imgbb.com/1/upload")
                 .post(requestBody)
                 .build();
-        String imageUrl="";
+        String imageUrl = "";
         try {
             // Thực hiện yêu cầu và lấy phản hồi trả về
             Response response = client.newCall(request).execute();
@@ -234,7 +268,7 @@ public class NoteImageActivity extends AppCompatActivity {
             response.close();
             // Trích xuất URL của hình ảnh từ phản hồi JSON của ImgBB
             JSONObject jsonObject = new JSONObject(responseBody);
-           imageUrl = jsonObject.getJSONObject("data").getString("url");
+            imageUrl = jsonObject.getJSONObject("data").getString("url");
             // In ra URL của hình ảnh đã tải lê
 
 
@@ -248,86 +282,207 @@ public class NoteImageActivity extends AppCompatActivity {
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 999);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGE_GALLERY);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 999 && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            Log.e("TAG", "onActivityResult: " + data.getData());
+    public void opendCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                byte[] byteArray = byteArrayOutputStream.toByteArray();
-                imageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
-                byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
-                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                imgBackground.setVisibility(View.VISIBLE);
-                imgBackground.setImageBitmap(decodedByte);
-                fieldString = "--E7ED2820-5F59-43E5-81F4-9462606A90A2 \\n" +
-                        "Content-Disposition: form-data; name =   \\n" +
-                        "Content-Type: text/plain; charset =ISO-8859-1  \\n" +
-                        "Content-Transfer-Encoding: 8bit \\n" + imageBase64 + " \\n" +
-                        " --E7ED2820-5F59-43E5-81F4-9462606A90A2--";
+                photoFile = createImageFile();
+                Log.e("TAG", "opendCamera: " + photoFile);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e("ERROR", "opendCamera: "+ex );
 
-            } catch (IOException e) {
-                Log.e("TAG", "onActivityResult: " + e.getMessage());
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getApplicationContext(),
+                        "com.example.cloud_note.fileprovider",
+                        photoFile);
+
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
 
-    private void requesPermisstion() {
-        ActivityCompat.requestPermissions(NoteImageActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 999);
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_IMAGE_GALLERY:
+                    Uri uri = data.getData();
+                    Log.e("TAG", "onActivityResult: Ảnh từ thư viện " + data.getData());
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                        byte[] byteArray = byteArrayOutputStream.toByteArray();
+                        imageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                        byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        imgBackground.setVisibility(View.VISIBLE);
+                        imgBackground.setImageBitmap(decodedByte);
+                        scanlTextImage(imageBase64);
+                        Log.e("TAG", "onActivityResult: Step1 Complate ");
+                    } catch (IOException e) {
+                        Log.e("TAG", "onActivityResult: " + e.getMessage());
+                    }
+                    break;
+                case REQUEST_IMAGE_CAPTURE:
+                   Bitmap bitmap = setPic();
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream.toByteArray();
+                    imageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    imgBackground.setVisibility(View.VISIBLE);
+                    imgBackground.setImageBitmap(bitmap);
+                    scanlTextImage(imageBase64);
+                    break;
+            }
+
+
+        }
+    }
+    private Bitmap setPic() {
+        String filePath  = currentPhotoPath.replace("/emulated/0/","/self/primary/");
+        // Get the dimensions of the View
+//        int targetW = imgBackground.getWidth();
+//        int targetH = imgBackground.getHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(filePath, bmOptions);
+
+//        int photoW = bmOptions.outWidth;
+//        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+//        int scaleFactor = Math.max(1, Math.min(photoW / targetW, photoH / targetH));
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+
+        bmOptions.inPurgeable = true;
+
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath, bmOptions);
+       // imgBackground.setImageBitmap(bitmap);
+        return  bitmap;
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        Log.e("TAG", "createImageFile: " + image);
+        Log.e("TAG", "createImageFile: " + currentPhotoPath);
+        return image;
+    }
+
+
+    private void requesPermisstionGallery() {
+        ActivityCompat.requestPermissions(NoteImageActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_IMAGE_GALLERY);
+    }
+
+    private void requesPermisstionCamera() {
+        ActivityCompat.requestPermissions(NoteImageActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 999 & grantResults[0] == 0) {
+        if ((requestCode == REQUEST_IMAGE_GALLERY & grantResults[0] == 0) || (requestCode == REQUEST_IMAGE_CAPTURE & grantResults[0] == 0)) {
             // đồng ý
-
+            opendDialogImage();
         } else {
             // không đồng ý
             Toast.makeText(NoteImageActivity.this, "Do bạn không đồng ý !!!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void dialogDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        DatePickerDialog datePickerDialog = new DatePickerDialog(NoteImageActivity.this, new DatePickerDialog.OnDateSetListener() {
+    private void scanlTextImage(String base64) {
+        hud.show();
+        byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+        InputImage inputImage = InputImage.fromBitmap(decodedByte, 0);
+        TextRecognizer textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+        Task<Text> result = textRecognizer.process(inputImage).addOnSuccessListener(new OnSuccessListener<Text>() {
             @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                int days = dayOfMonth;
-                int months = month;
-                int years = year;
-                tvDateCreate.setText(days + "-" + (months + 1) + "-" + years);
+            public void onSuccess(Text text) {
+                StringBuilder result = new StringBuilder();
+                for (Text.TextBlock block : text.getTextBlocks()) {
+                    String blockText = block.getText();
+                    Point[] blockCornerPoint = block.getCornerPoints();
+                    Rect blockFrame = block.getBoundingBox();
+                    for (Text.Line line : block.getLines()) {
+                        String lineTExt = line.getText();
+                        Point[] lineCornerPoint = line.getCornerPoints();
+                        Rect lineRect = line.getBoundingBox();
+                        for (Text.Element element : line.getElements()) {
+                            String elementText = element.getText();
+                            result.append(elementText);
+                        }
+
+
+                    }
+
+                }
+
+                addContentText.setText(result);
+                if(currentPhotoPath!=""){
+                    File file = new File(currentPhotoPath);
+                    if (file.exists()) {
+                        // Xóa file
+                        boolean isDeleted = file.delete();
+
+                        if (isDeleted) {
+                            hud.dismiss();
+                            System.out.println("File đã được xóa thành công.");
+                        } else {
+                            System.out.println("Không thể xóa file.");
+                        }
+                    } else {
+                        System.out.println("File không tồn tại.");
+                    }
+                }else{
+                    hud.dismiss();
+                }
+
+                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+                Log.e("TAG", "onSuccess: " + result);
+
             }
-        }, calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-        );
-        datePickerDialog.show();
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(NoteImageActivity.this, "Fail to detect text from image.." + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
-    public void dialogTime() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        TimePickerDialog timePickerDialog = new TimePickerDialog(NoteImageActivity.this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                int hour = i;
-                int minute = i1;
-                tvTimeCreate.setText(hour + ":" + minute);
-            }
-        }, hourOfDay, minute, false);
-        timePickerDialog.show();
-    }
 
     public void Menu_Dialog(int gravity) {
         final Dialog dialog = new Dialog(this);
@@ -480,6 +635,43 @@ public class NoteImageActivity extends AppCompatActivity {
 
         Log.e("TAG", "getimage: ");
 
+
+    }
+
+    private void opendDialogImage() {
+        final Dialog dialog = new Dialog(NoteImageActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
+        dialog.setContentView(R.layout.dialog_menu_image);
+        TextView tv_camera = dialog.findViewById(R.id.tv_camera);
+        TextView tv_gallery = dialog.findViewById(R.id.tv_gallery);
+        tv_camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(NoteImageActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requesPermisstionCamera();
+                } else {
+                   opendCamera();
+
+                }
+                dialog.dismiss();
+
+
+            }
+        });
+        tv_gallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(NoteImageActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requesPermisstionGallery();
+                } else {
+                    pickImage();
+
+                }
+                dialog.dismiss();
+
+
+            }
+        });
+        dialog.show();
 
     }
 

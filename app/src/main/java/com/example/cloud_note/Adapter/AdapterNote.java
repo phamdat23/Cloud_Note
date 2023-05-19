@@ -121,7 +121,16 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 public void onResponse(Call<ModelGetNoteText> call, Response<ModelGetNoteText> response) {
                     if (response.body() != null && response.isSuccessful()) {
                         ModelGetNoteText obj = response.body();
-                        holder.contentText.setText(obj.getModelTextNote().getData());
+                        if(obj.getModelTextNote().getData().length() > 150){
+                            String result = "";
+                            for (int i = 0; i < 150; i++) {
+                                result += obj.getModelTextNote().getData().charAt(i);
+                            }
+                            result += "............";
+                            holder.contentText.setText(result);
+                        } else {
+                            holder.contentText.setText(obj.getModelTextNote().getData());
+                        }
                         intent.putExtra("data", obj.getModelTextNote().getData());
                     }
 
@@ -205,6 +214,7 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             intent.putExtra("colorR", list_note.getColor().getR());
             intent.putExtra("colorG", list_note.getColor().getG());
             intent.putExtra("colorB", list_note.getColor().getB());
+            intent.putExtra("type",list_note.getType());
             APINote.apiService.getNoteByIdTypeImage(list_note.getId()).enqueue(new Callback<ModelGetImageNote>() {
 
                 @SuppressLint("ResourceAsColor")
@@ -212,16 +222,24 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 public void onResponse(Call<ModelGetImageNote> call, Response<ModelGetImageNote> response) {
                     if(response.isSuccessful()&response.body()!=null){
                         ModelGetImageNote obj = response.body();
-                        holder.contentText.setText(obj.getNote().getData());
-                        Log.e("TAG", "onResponse: img"+ obj.getNote().getMetaData());
+                        if(obj.getNote().getData().length() > 150){
+                            String result = "";
+                            for (int i = 0; i < 150; i++) {
+                                result += obj.getNote().getData().charAt(i);
+                            }
+                            result += "............";
+                            holder.contentText.setText(result);
+                        } else {
+                            holder.contentText.setText(obj.getNote().getData());
+                        }
                         if(obj.getNote().getMetaData()!=null && obj.getNote().getMetaData()!=""){
                             holder.imgBackGround.setVisibility(View.VISIBLE);
-                            holder.titleHeader.setTextColor(R.color.white);
-                            holder.contentText.setTextColor(R.color.white);
-                            holder.dueDate.setTextColor(R.color.white);
-                            holder.createDate.setTextColor(R.color.white);
-                            holder.Due.setTextColor(R.color.white);
-                            holder.Created.setTextColor(R.color.white);
+//                            holder.titleHeader.setTextColor(R.color.white);
+//                            holder.contentText.setTextColor(R.color.white);
+//                            holder.dueDate.setTextColor(R.color.white);
+//                            holder.createDate.setTextColor(R.color.white);
+//                            holder.Due.setTextColor(R.color.white);
+//                            holder.Created.setTextColor(R.color.white);
                             Glide.with(holder.imgBackGround).load(obj.getNote().getMetaData()).into(holder.imgBackGround);
                         }else{
                             holder.imgBackGround.setVisibility(View.GONE);
@@ -251,6 +269,18 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 });
 
             }
+        }else if(list_note.getType().equalsIgnoreCase("screenshot")){
+            APINote.apiService.getNoteByIdTypeImage(list_note.getId()).enqueue(new Callback<ModelGetImageNote>() {
+                @Override
+                public void onResponse(Call<ModelGetImageNote> call, Response<ModelGetImageNote> response) {
+                    Log.e("TAG", "onResponse: "+response.body() );
+                }
+
+                @Override
+                public void onFailure(Call<ModelGetImageNote> call, Throwable t) {
+
+                }
+            });
         }
 
 

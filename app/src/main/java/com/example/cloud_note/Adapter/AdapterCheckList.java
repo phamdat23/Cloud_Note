@@ -2,12 +2,16 @@ package com.example.cloud_note.Adapter;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,24 +55,60 @@ public class AdapterCheckList extends RecyclerView.Adapter<AdapterCheckList.View
             holder.checkbox.setChecked(false);
         }
         if (edit == true) {
-            holder.checkbox.setClickable(false);
-            holder.imgEdit.setVisibility(View.VISIBLE);
-            ModelCheckList obj = new ModelCheckList();
-            obj.setId(checkList.getId());
-            if(holder.checkbox.isChecked()==true){
-                obj.setStatus(1);
-            }else if(holder.checkbox.isChecked()==false){
-                obj.setStatus(0);
-            }
-            obj.setContent(checkList.getContent());
-            holder.imgEdit.setOnClickListener(new View.OnClickListener() {
+            holder.tvCheckNote.setEnabled(true);
+            holder.tvCheckNote.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void onClick(View view) {
-                    dialogupdate(context, obj, index, holder);
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.e("TAG", "afterTextChanged: "+editable.toString() );
+                    checkList.setContent(String.valueOf(editable));
+                    list.set(index,checkList );
                 }
             });
+            holder.checkbox.setClickable(true);
+            holder.imgEdit.setVisibility(View.INVISIBLE);
+            ModelCheckList obj = new ModelCheckList();
+            obj.setId(checkList.getId());
+//            if(holder.checkbox.isChecked()==true){
+//                obj.setStatus(1);
+//            }else if(holder.checkbox.isChecked()==false){
+//                obj.setStatus(0);
+//            }
+            obj.setContent(checkList.getContent());
+            holder.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    Log.e("TAG", "onCheckedChanged: "+b );
+                    if(b==true){
+                        Log.e("TAG", "onCheckedChanged: 1");
+                        checkList.setStatus(1);
+                        list.set(index,checkList );
+
+                    }else{
+                        Log.e("TAG", "onCheckedChanged: 1");
+                        checkList.setStatus(0);
+                        list.set(index,checkList );
+                    }
+                }
+            });
+//            holder.imgEdit.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    dialogupdate(context, obj, index, holder);
+//                }
+//            });
 
         } else if (edit == false) {
+            holder.tvCheckNote.setEnabled(false);
             holder.checkbox.setClickable(false);
             holder.imgEdit.setVisibility(View.INVISIBLE);
         }
@@ -114,13 +154,13 @@ public class AdapterCheckList extends RecyclerView.Adapter<AdapterCheckList.View
 
     public class ViewHoderCheckList extends RecyclerView.ViewHolder {
         private CheckBox checkbox;
-        private TextView tvCheckNote;
+        private EditText tvCheckNote;
         private ImageView imgEdit;
 
         public ViewHoderCheckList(@NonNull View itemView) {
             super(itemView);
             checkbox = (CheckBox) itemView.findViewById(R.id.checkbox);
-            tvCheckNote = (TextView) itemView.findViewById(R.id.tv_checkNote);
+            tvCheckNote = (EditText) itemView.findViewById(R.id.tv_checkNote);
 
 
             imgEdit = (ImageView) itemView.findViewById(R.id.img_edit);

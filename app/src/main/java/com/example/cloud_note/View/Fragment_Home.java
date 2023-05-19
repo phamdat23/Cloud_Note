@@ -30,6 +30,7 @@ import com.example.cloud_note.Model.GET.Model_Notes;
 import com.example.cloud_note.Model.Model_State_Login;
 import com.example.cloud_note.Model.Setting_Sort;
 import com.example.cloud_note.R;
+import com.example.cloud_note.ScreenShotActivity;
 import com.example.cloud_note.SettingActivity;
 
 import java.text.ParseException;
@@ -40,6 +41,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import io.github.rupinderjeet.kprogresshud.KProgressHUD;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -53,7 +55,10 @@ public class Fragment_Home extends Fragment {
     private SearchView search;
     private ImageButton buttonSortby;
     private RecyclerView recyclerView;
-    SharedPreferences sharedPreferences;
+    private ImageButton screenShot;
+
+
+
     AdapterNote adapterNote;
     Model_Notes note;
     Login daoLogin;
@@ -61,6 +66,7 @@ public class Fragment_Home extends Fragment {
     Setting_Sort sort;
     Model_State_Login user;
     boolean isSort;
+    KProgressHUD isloading;
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,9 +75,10 @@ public class Fragment_Home extends Fragment {
         View view = inflater.inflate(R.layout.home_page, container, false);
         mActivity = (Activity) getActivity();
 
-        sharedPreferences = getActivity().getSharedPreferences("Account", Context.MODE_PRIVATE);
         homePage = (CardView) view.findViewById(R.id.home_page);
         preferences = (ImageButton) view.findViewById(R.id.preferences);
+        screenShot = (ImageButton) view.findViewById(R.id.screenShot);
+
         search = (SearchView) view.findViewById(R.id.search);
         buttonSortby = (ImageButton) view.findViewById(R.id.button_sortby);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_View);
@@ -79,6 +86,11 @@ public class Fragment_Home extends Fragment {
         context = getContext();
         daoLogin = new Login(context);
         daoSort = new Sort(context);
+        isloading= new KProgressHUD(context)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDimAmount(0.5f).setCancellable(true)
+                .setAnimationSpeed(2);
         return view;
     }
 
@@ -94,20 +106,35 @@ public class Fragment_Home extends Fragment {
                 mActivity.startActivity(intent);
             }
         });
+
         getListNote();
+        screenShot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, ScreenShotActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getListNote();
+//        getListNote();
         user = daoLogin.getLogin();
         sort= daoSort.getNameSort();
         Log.e("TAG", "onResume: sort name"+sort.getSortName() );
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getListNote();
+    }
 
     public void getListNote() {
+        isloading.show();
         Log.d("TAG", "getListNote: Step1");
         APINote.apiService.getListNoteByUser(user.getIdUer()).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -129,9 +156,15 @@ public class Fragment_Home extends Fragment {
 
                     @Override
                     public void onComplete() {
-                        Toast.makeText(context, "Lấy dữ liệu thành công", Toast.LENGTH_SHORT).show();
+                        isloading.dismiss();
+//                        Toast.makeText(context, "Lấy dữ liệu thành công", Toast.LENGTH_SHORT).show();
                         List<Model_List_Note> list = new ArrayList<>();
-                        list.addAll(note.getList());
+                        for (Model_List_Note x : note.getList()){
+                            if(!x.getType().equalsIgnoreCase("screenshot")){
+                                list.add(x);
+                            }
+                        }
+
                         adapterNote = new AdapterNote(list, true);
                         recyclerView.setAdapter(adapterNote);
 

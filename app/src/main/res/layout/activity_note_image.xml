@@ -97,6 +97,7 @@
 
                         />
 
+
                     <EditText
                         android:id="@+id/title_name"
                         android:layout_width="match_parent"
@@ -176,20 +177,24 @@
 
                         </LinearLayout>
                     </LinearLayout>
-
-
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fillViewport="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:scrollbars="vertical">
                     <EditText
                         android:id="@+id/add_content_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="15dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginBottom="15dp"
                         android:background="@null"
                         android:fontFamily="@font/roboto_medium"
                         android:hint="Add text"
                         android:padding="5dp"
                         android:textColor="@color/black" />
+                    </ScrollView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>

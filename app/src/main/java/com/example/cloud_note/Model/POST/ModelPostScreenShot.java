@@ -29,8 +29,19 @@ public class ModelPostScreenShot {
     @SerializedName("share")
     private String share;
 
+    @SerializedName("notePublic")
+    private int notePublic;
+
     public String getData() {
         return data;
+    }
+
+    public int getNotePublic() {
+        return notePublic;
+    }
+
+    public void setNotePublic(int notePublic) {
+        this.notePublic = notePublic;
     }
 
     public void setData(String data) {
