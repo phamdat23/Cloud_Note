@@ -207,7 +207,7 @@ public class ScreenShotActivity extends AppCompatActivity {
     private List<ModelScreenShots> search(String query,  List<ModelScreenShots> list ){
         List<ModelScreenShots> listQuery = new ArrayList<>();
         for (ModelScreenShots item : list){
-            if(item.getData().contains(query.toLowerCase())){
+            if(item.getData().toLowerCase().contains(query.toLowerCase())){
                 listQuery.add(item);
             }
         }

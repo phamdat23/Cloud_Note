@@ -21,6 +21,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".LoadingPageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateNotePublicActivity"
+            android:exported="false" />
+        <activity
             android:name=".NotesPublicActivity"
             android:exported="false" />
         <activity

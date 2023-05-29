@@ -121,6 +121,7 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
                 }
             }
         });
+        menuTextNote.setVisibility(View.INVISIBLE);
         menuTextNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -609,34 +609,7 @@ public class NoteImageActivity extends AppCompatActivity {
         return color;
     }
 
-    private void getimage(String myStringData) {
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "E7ED2820-5F59-43E5-81F4-9462606A90A2";
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-        // Send parameter #1
-        try {
-            dos.writeBytes(twoHyphens + boundary + lineEnd);
-            dos.writeBytes("Content-Disposition: form-data; name=\"image\"" + lineEnd);
-            dos.writeBytes("Content-Type: text/plain; charset=US-ASCII" + lineEnd);
-            dos.writeBytes("Content-Transfer-Encoding: 8bit" + lineEnd);
-            dos.writeBytes(lineEnd);
-            dos.writeBytes(myStringData + lineEnd);
-            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-        } catch (IOException e) {
-            Log.e("TAG", "getimage: " + e.getMessage());
-        }
-
-
-        ByteArrayInputStream content = new ByteArrayInputStream(baos.toByteArray());
-
-
-        Log.e("TAG", "getimage: ");
-
-
-    }
 
     private void opendDialogImage() {
         final Dialog dialog = new Dialog(NoteImageActivity.this, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);

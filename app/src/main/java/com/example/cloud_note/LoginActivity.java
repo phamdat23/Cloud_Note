@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.btn_login);
         daoLogin = new Login(LoginActivity.this);
         user = daoLogin.getLogin();
-         hud = KProgressHUD.create(LoginActivity.this)
+        hud = KProgressHUD.create(LoginActivity.this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setLabel("Please wait")
                 .setDetailsLabel("")
@@ -70,19 +70,19 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(inputUsername.getEditText().getText().toString()!=""&& inputPasswd.getEditText().getText().toString()!=""){
+                if (inputUsername.getEditText().getText().toString() != "" && inputPasswd.getEditText().getText().toString() != "") {
                     inputPasswd.setError("");
                     inputUsername.setError("");
                     login();
-                }else{
-                    if(inputUsername.getEditText().getText().toString()!=""){
+                } else {
+                    if (inputUsername.getEditText().getText().toString() != "") {
                         inputUsername.setError("Trường này không được để trống");
-                    }else{
+                    } else {
                         inputUsername.setError("");
                     }
-                    if(inputPasswd.getEditText().getText().toString()!=""){
+                    if (inputPasswd.getEditText().getText().toString() != "") {
                         inputPasswd.setError("Password không được để trống");
-                    }else{
+                    } else {
                         inputPasswd.setError("");
                     }
                 }
@@ -92,61 +92,62 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
-    public void login (){
+
+    public void login() {
         hud.show();
         LoginReq loginReq = new LoginReq(inputUsername.getEditText().getText().toString(), inputPasswd.getEditText().getText().toString());
-            APINote.apiService.login(loginReq)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<LoginModel>() {
-                        @Override
-                        public void onSubscribe(@NonNull Disposable d) {
+        APINote.apiService.login(loginReq)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<LoginModel>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
 
-                        }
+                    }
 
-                        @Override
-                        public void onNext(@NonNull LoginModel loginModel) {
-                            loginModelm = loginModel;
-                        }
+                    @Override
+                    public void onNext(@NonNull LoginModel loginModel) {
+                        loginModelm = loginModel;
+                    }
 
-                        @Override
-                        public void onError(@NonNull Throwable e) {
-                            hud.dismiss();
-                            Log.e("TAG", "onError: "+e );
-                            inputPasswd.setError("Sai mật khẩu");
-                        }
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        hud.dismiss();
+                        Log.e("TAG", "onError: " + e);
+                        inputPasswd.setError("Sai mật khẩu");
+                    }
 
-                        @Override
-                        public void onComplete() {
-                            if(loginModelm.getStatus()==200){
-                               long res= daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt(), 0));
-                               if(res>0){
-                                   hud.dismiss();
-                                   Toast.makeText(LoginActivity.this, "Đăng nhập thành công" , Toast.LENGTH_SHORT).show();
-                                   Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                   startActivity(intent);
-                                   finish();
-                               }else{
-                                   Toast.makeText(LoginActivity.this, "Lỗi" , Toast.LENGTH_SHORT).show();
-                               }
+                    @Override
+                    public void onComplete() {
+                        if (loginModelm.getStatus() == 200) {
+                            long res = daoLogin.insert(new Model_State_Login(loginModelm.getUser().getId(), loginModelm.getJwt(), 0));
+                            if (res > 0) {
+                                hud.dismiss();
+                                Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Lỗi", Toast.LENGTH_SHORT).show();
                             }
-
                         }
-                    });
+
+                    }
+                });
 
     }
 
     @Override
     public void onBackPressed() {
 
-        if(user.getIdUer()==0){
-            Intent Main = new Intent(Intent.ACTION_MAIN);
-            Main.addCategory(Intent.CATEGORY_HOME);
-            startActivity(Main);
+        if (user.getIdUer() == 0) {
+            Intent intent = new Intent(LoginActivity.this, LoadingPageActivity.class);
+            startActivity(intent);
             finish();
-        }else{
+        } else {
             super.onBackPressed();
         }
+
 
     }
 }

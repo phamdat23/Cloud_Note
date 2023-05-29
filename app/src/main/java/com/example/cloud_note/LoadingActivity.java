@@ -31,7 +31,7 @@ public class LoadingActivity extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }else{
-                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                    Intent intent = new Intent(getBaseContext(), LoadingPageActivity.class);
                     startActivity(intent);
                     finish();
                 }

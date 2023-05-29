@@ -67,7 +67,7 @@ public class AdapterScreenShots extends RecyclerView.Adapter<AdapterScreenShots.
             } else {
                 holder.tvData.setText(obj.getData());
             }
-            holder.tvCreateAt.setText(obj.getCreateAt());
+            holder.tvCreateAt.setText("CreateAt: "+obj.getCreateAt());
             holder.imgInfor.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

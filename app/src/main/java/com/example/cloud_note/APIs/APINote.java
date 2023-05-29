@@ -4,7 +4,9 @@ import com.example.cloud_note.Model.GET.ModelGetImageNote;
 import com.example.cloud_note.Model.GET.ModelGetScreenShots;
 import com.example.cloud_note.Model.GET.ModelImageNote;
 import com.example.cloud_note.Model.GET.ModelScreenShots;
+import com.example.cloud_note.Model.GET.ModelUser;
 import com.example.cloud_note.Model.LoginModel;
+import com.example.cloud_note.Model.ModelListLastUser;
 import com.example.cloud_note.Model.PATCH.ModelPutCheckList;
 import com.example.cloud_note.Model.PATCH.ModelPutTextNote;
 import com.example.cloud_note.Model.POST.LoginReq;
@@ -17,6 +19,8 @@ import com.example.cloud_note.Model.POST.ModelPostScreenShot;
 import com.example.cloud_note.Model.POST.ModelTextNoteCheckListPost;
 import com.example.cloud_note.Model.POST.ModelTextNotePost;
 import com.example.cloud_note.Model.GET.Model_Notes;
+import com.example.cloud_note.Model.POST.Public.ModelCheckListPublic;
+import com.example.cloud_note.Model.POST.Public.ModelTextNotePublic;
 import com.example.cloud_note.Model.POST.RegiterReq;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -147,5 +151,24 @@ public interface APINote {
 
     @POST("notes/{id}")
     Call<ModelReturn> postScreenShot(@Path("id") int id,@Body ModelPostScreenShot image);
+    @GET("lastUser")
+    Call<ModelListLastUser> getListLastUser();
+    @GET("notes_public")
+    Call<Model_Notes> getNotePublic();
 
+    @POST("notes/10")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelReturn> post_text_note_public( @Body ModelTextNotePublic modelTextNotePost);
+    @POST("notes/10")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelReturn> post_checklist_public( @Body ModelCheckListPublic modelCheckListPublic);
+    @POST("notes/10")
+    @Headers({
+            "Content-type: Application/json"
+    })
+    Call<ModelReturn> post_image_note_public( @Body ModelPostImageNote modelPostImageNote);
 }

@@ -163,7 +163,7 @@ public class ScreenShot extends Service {
                 MediaStore.Images.ImageColumns.DATA
         };
         String selection = MediaStore.Images.ImageColumns.DATA + " like ?";
-        String[] selectionArgs = new String[]{"%/Pictures/Screenshots/%"};
+        String[] selectionArgs = new String[]{"%/Screenshots/%"};
 
         Cursor cursor = getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
