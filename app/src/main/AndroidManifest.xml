@@ -35,7 +35,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.cloud_note.fileprovider"
+            android:authorities="com.thinkdiffai.cloud_note.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
