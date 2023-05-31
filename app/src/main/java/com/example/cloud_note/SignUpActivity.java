@@ -51,10 +51,13 @@ public class SignUpActivity extends AppCompatActivity {
 
 
         btnRegiter = (Button) findViewById(R.id.btn_regiter);
-        isloading = new KProgressHUD(getApplicationContext())
+        isloading = new KProgressHUD(SignUpActivity.this)
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setLabel("Please wait")
+                .setDetailsLabel("")
                 .setCancellable(true)
                 .setAnimationSpeed(2)
-                .setDimAmount(0.5f).setLabel("Please wait");
+                .setDimAmount(0.5f);
 
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +75,8 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (validate() == true) {
+                    isloading.show();
+
                     Regiter();
                 }
             }
@@ -80,7 +85,6 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void Regiter() {
-        isloading.show();
         RegiterReq regiterReq = new RegiterReq(inputUsername.getEditText().getText().toString(), inputPasswd.getEditText().getText().toString(), inputYourName.getEditText().getText().toString(), inputEmail.getEditText().getText().toString());
         APINote.apiService.Regiter(regiterReq)
                 .subscribeOn(Schedulers.io())

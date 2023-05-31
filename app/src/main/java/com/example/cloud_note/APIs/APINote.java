@@ -72,7 +72,7 @@ public interface APINote {
     Observable<LoginModel> login(@Body LoginReq loginReq);
 
 
-    @POST("regiter")
+    @POST("register")
     @Headers({
             "Content-type: Application/json"
     })

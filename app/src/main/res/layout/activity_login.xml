@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:textColor="@color/black"
-                android:text="Cloud Note"
+                android:text="SamNotes"
                 android:textSize="30dp" />
 
             <TextView

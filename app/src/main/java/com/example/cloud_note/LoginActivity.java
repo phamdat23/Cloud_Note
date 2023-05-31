@@ -139,7 +139,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         if (user.getIdUer() == 0) {
             Intent intent = new Intent(LoginActivity.this, LoadingPageActivity.class);
             startActivity(intent);
