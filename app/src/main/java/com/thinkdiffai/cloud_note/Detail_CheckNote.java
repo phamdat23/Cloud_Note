@@ -10,15 +10,21 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Adapter.AdapterCheckList;
 import com.thinkdiffai.cloud_note.Model.GET.ModelCheckList;
@@ -44,6 +50,7 @@ import retrofit2.Response;
 public class Detail_CheckNote extends AppCompatActivity {
     private CardView cardView;
     private ImageButton back;
+    private ImageButton menuDetailCheckList;
     private EditText title;
     private ImageButton done;
     private String color_background;
@@ -60,6 +67,7 @@ public class Detail_CheckNote extends AppCompatActivity {
     private Button btnAddCheckList;
 KProgressHUD isloading;
     List<ModelCheckListPost> checkListUpdate = new ArrayList<>();
+    int notePublic;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +79,21 @@ KProgressHUD isloading;
         back = findViewById(R.id.back_from_detail_check_note);
         title = findViewById(R.id.title_detail_checklist);
         recyclerView = findViewById(R.id.recycler_checklist);
+        menuDetailCheckList = (ImageButton) findViewById(R.id.menu_detail_check_list);
         btnDetailChecklistDone = (ImageButton) findViewById(R.id.btn_detail_checklist_done);
         btnAddCheckList = (Button) findViewById(R.id.btn_addCheckList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         getData(intent);
+        if(notePublic==0){
+            btnAddCheckList.setVisibility(View.VISIBLE);
+            title.setEnabled(true);
+            btnDetailChecklistDone.setVisibility(View.VISIBLE);
+        }else{
+            btnAddCheckList.setVisibility(View.INVISIBLE);
+            title.setEnabled(false);
+            btnDetailChecklistDone.setVisibility(View.INVISIBLE);
+        }
         String hex = ChuyenMau(colorA, colorR, colorG, colorB);
         cardView.setCardBackgroundColor(Color.parseColor(hex));
         ModelGetCheckList obj = new ModelGetCheckList();
@@ -86,6 +104,9 @@ KProgressHUD isloading;
                 .setCancellable(true)
                 .setAnimationSpeed(2)
                 .setDimAmount(0.5f);
+        menuDetailCheckList.setOnClickListener(view->{
+            Menu_Dialog(Gravity.BOTTOM);
+        });
         APINote.apiService.getNoteByIdTypeCheckList(idNote).enqueue(new Callback<ModelGetCheckList>() {
             @Override
             public void onResponse(Call<ModelGetCheckList> call, Response<ModelGetCheckList> response) {
@@ -146,8 +167,6 @@ KProgressHUD isloading;
                 isloading.dismiss();
             }
         });
-
-
         Back();
     }
     public void dialogAddCheckList(Context context, List<ModelCheckList> list) {
@@ -264,5 +283,109 @@ KProgressHUD isloading;
                 onBackPressed();
             }
         });
+    }
+    public void Menu_Dialog(int gravity){
+        final Dialog dialog = new Dialog(this);
+        //Truyền layout cho dialog.
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.custom_select_color);
+
+        //Xác định vị trí cho dialog
+
+        Window window = dialog.getWindow();
+        if(window == null){
+
+        }
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        WindowManager.LayoutParams windowAttributes = window.getAttributes();
+        windowAttributes.gravity = gravity;
+        window.setAttributes(windowAttributes);
+
+        if(Gravity.BOTTOM == gravity){
+            dialog.setCancelable(true);
+        }else {
+            dialog.setCancelable(false);
+        }
+        //Ánh xạ
+        ImageButton red = dialog.findViewById(R.id.color_red);
+        ImageButton orange = dialog.findViewById(R.id.color_orange);
+        ImageButton yellow = dialog.findViewById(R.id.color_yellow);
+        ImageButton green1 = dialog.findViewById(R.id.color_green1);
+        ImageButton green2 = dialog.findViewById(R.id.color_green2);
+        ImageButton mint = dialog.findViewById(R.id.color_mint);
+        ImageButton blue = dialog.findViewById(R.id.color_blue);
+        ImageButton purple = dialog.findViewById(R.id.color_purple);
+        TextView tvShare = dialog.findViewById(R.id.tv_share);
+        tvShare.setOnClickListener(view->{
+
+        });
+        red.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#FF7D7D";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#FFBC7D";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        yellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#FAE28C";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        green1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#D3EF82";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        green2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#A5EF82";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        mint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#82EFBB";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#82C8EF";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        purple.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                color_background = "#8293EF";
+                cardView.setCardBackgroundColor(Color.parseColor(color_background));
+                dialog.cancel();
+            }
+        });
+        dialog.show();
     }
 }

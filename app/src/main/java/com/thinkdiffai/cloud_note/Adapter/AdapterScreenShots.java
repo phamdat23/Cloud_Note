@@ -17,11 +17,12 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Detail_Note_ImageActivity;
 import com.thinkdiffai.cloud_note.Model.GET.ModelReturn;
 import com.thinkdiffai.cloud_note.Model.GET.ModelScreenShots;
-import com.thinkdiffai.cloud_note.R;
+
 
 import java.util.List;
 

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.DAO.Login;
 import com.thinkdiffai.cloud_note.Model.LoginModel;

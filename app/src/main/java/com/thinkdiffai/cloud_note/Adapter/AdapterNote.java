@@ -22,6 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Detail_CheckNote;
 import com.thinkdiffai.cloud_note.Detail_Note;
@@ -31,7 +32,6 @@ import com.thinkdiffai.cloud_note.Model.GET.ModelGetImageNote;
 import com.thinkdiffai.cloud_note.Model.GET.ModelGetNoteText;
 import com.thinkdiffai.cloud_note.Model.GET.ModelReturn;
 import com.thinkdiffai.cloud_note.Model.Model_List_Note;
-import com.thinkdiffai.cloud_note.R;
 
 import java.util.List;
 
@@ -71,15 +71,19 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
         holder.createDate.setText(list_note.getCreateAt() + "");
         holder.dueDate.setText(list_note.getDuaAt() + "");
         if (list_note.getNotePublic() == 1) {
-            holder.imgActive1.setVisibility(View.GONE);
+            holder.imgActive1.setVisibility(View.VISIBLE);
             holder.imgActive2.setVisibility(View.GONE);
             holder.imgDelete.setVisibility(View.GONE);
-            holder.imgInfor.setVisibility(View.GONE);
+            holder.imgInfor.setVisibility(View.VISIBLE);
+            holder.imgInfor.setImageResource(R.drawable.info);
+            holder.imgActive1.setImageResource(R.drawable.info);
         } else {
             holder.imgActive1.setVisibility(View.VISIBLE);
             holder.imgActive2.setVisibility(View.VISIBLE);
             holder.imgDelete.setVisibility(View.VISIBLE);
             holder.imgInfor.setVisibility(View.VISIBLE);
+            holder.imgInfor.setImageResource(R.drawable.info);
+            holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
         }
         String hex = ChuyenMau(list_note.getColor().getA(), list_note.getColor().getR(), list_note.getColor().getG(), list_note.getColor().getB());
         if (!hex.equalsIgnoreCase("#000")) {
@@ -95,7 +99,11 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             holder.state.setVisibility(View.INVISIBLE);
         }
         if (home == true) {
-            holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+            if(list_note.getNotePublic()==0){
+                holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+            }else{
+                holder.imgActive1.setImageResource(R.drawable.info);
+            }
             holder.imgActive2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -103,7 +111,9 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 }
             });
         } else if (home == false) {
-            holder.imgActive1.setImageResource(R.drawable.baseline_restore_24);
+            if(list_note.getNotePublic()==0){
+                holder.imgActive1.setImageResource(R.drawable.baseline_restore_24);
+            }
             holder.imgActive2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -122,6 +132,7 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             intent.putExtra("colorR", list_note.getColor().getR());
             intent.putExtra("colorG", list_note.getColor().getG());
             intent.putExtra("colorB", list_note.getColor().getB());
+            intent.putExtra("notePublic", list_note.getNotePublic());
 
             APINote.apiService.getNoteByIdTypeText(list_note.getId()).enqueue(new Callback<ModelGetNoteText>() {
                 @Override
@@ -149,7 +160,12 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 }
             });
             if (home == true) {
-                holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+                if(list_note.getNotePublic()==0){
+                    holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+                }else{
+                    holder.imgActive1.setImageResource(R.drawable.info);
+                }
+
                 holder.imgActive1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -181,7 +197,7 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             intent.putExtra("colorR", list_note.getColor().getR());
             intent.putExtra("colorG", list_note.getColor().getG());
             intent.putExtra("colorB", list_note.getColor().getB());
-
+            intent.putExtra("notePublic", list_note.getNotePublic());
             APINote.apiService.getNoteByIdTypeCheckList(list_note.getId()).enqueue(new Callback<ModelGetCheckList>() {
                 @Override
                 public void onResponse(Call<ModelGetCheckList> call, Response<ModelGetCheckList> response) {
@@ -197,7 +213,12 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
                 }
             });
             if (home == true) {
-                holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+                if(list_note.getNotePublic()==0){
+                    holder.imgActive1.setImageResource(R.drawable.baseline_edit_24);
+                }else{
+                    holder.imgActive1.setImageResource(R.drawable.info);
+                }
+
                 holder.imgActive1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -227,6 +248,7 @@ public class AdapterNote extends RecyclerView.Adapter<AdapterNote.ViewHoderItemN
             intent.putExtra("colorG", list_note.getColor().getG());
             intent.putExtra("colorB", list_note.getColor().getB());
             intent.putExtra("type", list_note.getType());
+            intent.putExtra("notePublic", list_note.getNotePublic());
             APINote.apiService.getNoteByIdTypeImage(list_note.getId()).enqueue(new Callback<ModelGetImageNote>() {
 
                 @SuppressLint("ResourceAsColor")

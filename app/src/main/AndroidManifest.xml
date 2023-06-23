@@ -21,16 +21,16 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".LoadingPageActivity"
+            android:name="com.thinkdiffai.cloud_note.LoadingPageActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateNotePublicActivity"
+            android:name="com.thinkdiffai.cloud_note.CreateNotePublicActivity"
             android:exported="false" />
         <activity
-            android:name=".NotesPublicActivity"
+            android:name="com.thinkdiffai.cloud_note.NotesPublicActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeActivity"
+            android:name="com.thinkdiffai.cloud_note.HomeActivity"
             android:exported="false" />
 
         <provider
@@ -44,46 +44,46 @@
         </provider>
 
         <activity
-            android:name=".ScreenShotActivity"
+            android:name="com.thinkdiffai.cloud_note.ScreenShotActivity"
             android:exported="false" />
 
         <service
-            android:name=".services.ScreenShot"
+            android:name="com.thinkdiffai.cloud_note.services.ScreenShot"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".Detail_Note_ImageActivity"
+            android:name="com.thinkdiffai.cloud_note.Detail_Note_ImageActivity"
             android:exported="false" />
         <activity
-            android:name=".NoteImageActivity"
+            android:name="com.thinkdiffai.cloud_note.NoteImageActivity"
             android:exported="false" />
         <activity
-            android:name=".SignUpActivity"
+            android:name="com.thinkdiffai.cloud_note.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name="com.thinkdiffai.cloud_note.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.thinkdiffai.cloud_note.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingActivity"
+            android:name="com.thinkdiffai.cloud_note.SettingActivity"
             android:exported="false" />
         <activity
-            android:name=".Detail_CheckNote"
+            android:name="com.thinkdiffai.cloud_note.Detail_CheckNote"
             android:exported="false" />
         <activity
-            android:name=".Detail_Note"
+            android:name="com.thinkdiffai.cloud_note.Detail_Note"
             android:exported="false" />
         <activity
-            android:name=".CheckedList_Activity"
+            android:name="com.thinkdiffai.cloud_note.CheckedList_Activity"
             android:exported="false" />
         <activity
-            android:name=".TextNoteActvity"
+            android:name="com.thinkdiffai.cloud_note.TextNoteActvity"
             android:exported="false" />
         <activity
-            android:name=".LoadingActivity"
+            android:name="com.thinkdiffai.cloud_note.LoadingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

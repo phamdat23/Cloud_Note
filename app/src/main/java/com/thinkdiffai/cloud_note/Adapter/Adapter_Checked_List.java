@@ -10,7 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.thinkdiffai.cloud_note.R;
+
+import com.example.cloud_note.R;
 
 import java.util.ArrayList;
 

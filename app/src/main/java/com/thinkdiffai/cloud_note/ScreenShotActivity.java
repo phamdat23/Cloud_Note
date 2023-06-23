@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Adapter.AdapterScreenShots;
 import com.thinkdiffai.cloud_note.DAO.Login;

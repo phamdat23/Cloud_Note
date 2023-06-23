@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.cloud_note.R;
+
 public class NotesPublicActivity extends AppCompatActivity {
     private ImageView imgBack;
     private TextView tvLogin;

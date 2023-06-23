@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Model.GET.ModelGetNoteText;
 import com.thinkdiffai.cloud_note.Model.GET.ModelReturn;
@@ -55,6 +56,7 @@ public class Detail_Note extends AppCompatActivity {
     int colorR;
     int colorG;
     int colorB;
+    int notePublic;
 
 
     //Database
@@ -74,13 +76,23 @@ KProgressHUD isloading;
         content = findViewById(R.id.detail_content_text);
         menu = findViewById(R.id.menu_detail_text_note);
 
-
         tvDateCreate = (TextView) findViewById(R.id.tv_dateCreate);
         imgDateCreate = (ImageView) findViewById(R.id.img_dateCreate);
         tvTimeCreate = (TextView) findViewById(R.id.tv_timeCreate);
         imgTimeCreate = (ImageView) findViewById(R.id.img_timeCreate);
 
         getData(intent);
+        if(notePublic==0){
+            done.setVisibility(View.VISIBLE);
+            menu.setVisibility(View.VISIBLE);
+            title.setEnabled(true);
+            content.setEnabled(true);
+        }else{
+            done.setVisibility(View.INVISIBLE);
+            title.setEnabled(false);
+            content.setEnabled(false);
+            menu.setVisibility(View.VISIBLE);
+        }
         isloading= new KProgressHUD(Detail_Note.this)
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setLabel("Please wait")
@@ -101,6 +113,7 @@ KProgressHUD isloading;
                     content.setText(obj.getModelTextNote().getData());
                     String hex = ChuyenMau(colorA, colorR, colorG, colorB);
                     cardView.setCardBackgroundColor(Color.parseColor(hex));
+
                     done.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -154,6 +167,7 @@ KProgressHUD isloading;
         colorR = intent.getIntExtra("colorR", 0);
         colorG = intent.getIntExtra("colorG", 0);
         colorB = intent.getIntExtra("colorB", 0);
+        notePublic = intent.getIntExtra("notePublic",0);
 
 
     }

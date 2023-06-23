@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Adapter.AdapterNote;
 import com.thinkdiffai.cloud_note.DAO.Login;
@@ -27,7 +28,6 @@ import com.thinkdiffai.cloud_note.Model.Model_List_Note;
 import com.thinkdiffai.cloud_note.Model.GET.Model_Notes;
 import com.thinkdiffai.cloud_note.Model.Model_State_Login;
 import com.thinkdiffai.cloud_note.Model.Setting_Sort;
-import com.thinkdiffai.cloud_note.R;
 import com.thinkdiffai.cloud_note.ScreenShotActivity;
 import com.thinkdiffai.cloud_note.SettingActivity;
 

@@ -36,6 +36,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Model.GET.ModelGetImageNote;
 import com.thinkdiffai.cloud_note.Model.GET.ModelGetScreenShots;
@@ -71,6 +72,7 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
     int colorB;
     String type;
     KProgressHUD isloading;
+    int notePublic;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,6 +188,7 @@ public class Detail_Note_ImageActivity extends AppCompatActivity {
         colorG = intent.getIntExtra("colorG", 0);
         colorB = intent.getIntExtra("colorB", 0);
         type = intent.getStringExtra("type");
+        notePublic= intent.getIntExtra("notePublic", 0);
 
 
     }

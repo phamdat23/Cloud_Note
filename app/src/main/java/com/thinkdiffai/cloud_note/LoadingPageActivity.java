@@ -6,6 +6,8 @@ import androidx.cardview.widget.CardView;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.cloud_note.R;
+
 public class LoadingPageActivity extends AppCompatActivity {
     private CardView btnLogin;
     private CardView btnSignin;

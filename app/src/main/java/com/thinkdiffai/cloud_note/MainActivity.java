@@ -26,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.Adapter.Fragment_Adapter;
 import com.thinkdiffai.cloud_note.DAO.Login;
 import com.thinkdiffai.cloud_note.Model.Model_State_Login;
@@ -84,15 +85,23 @@ public class MainActivity extends AppCompatActivity {
                 switch (position) {
                     case 0:
                         bottomNavigationView.getMenu().findItem(R.id.note).setChecked(true);
+                        btnAdd.setVisibility(View.VISIBLE);
                         break;
                     case 1:
                         bottomNavigationView.getMenu().findItem(R.id.calendar).setChecked(true);
+                        btnAdd.setVisibility(View.VISIBLE);
                         break;
                     case 2:
                         bottomNavigationView.getMenu().findItem(R.id.deleted).setChecked(true);
+                        btnAdd.setVisibility(View.VISIBLE);
+                        break;
+                    case 3:
+                        bottomNavigationView.getMenu().findItem(R.id.groups).setChecked(true);
+                        btnAdd.setVisibility(View.INVISIBLE);
                         break;
                     default:
                         bottomNavigationView.getMenu().findItem(R.id.note).setChecked(true);
+                        btnAdd.setVisibility(View.VISIBLE);
                         break;
                 }
             }
@@ -103,12 +112,19 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.note:
                         viewpager2.setCurrentItem(0);
+                        btnAdd.setVisibility(View.VISIBLE);
                         return true;
                     case R.id.calendar:
                         viewpager2.setCurrentItem(1);
+                        btnAdd.setVisibility(View.VISIBLE);
                         return true;
                     case R.id.deleted:
                         viewpager2.setCurrentItem(2);
+                        btnAdd.setVisibility(View.VISIBLE);
+                        return true;
+                    case  R.id.groups:
+                        viewpager2.setCurrentItem(3);
+                        btnAdd.setVisibility(View.INVISIBLE);
                         return true;
                 }
                 return false;

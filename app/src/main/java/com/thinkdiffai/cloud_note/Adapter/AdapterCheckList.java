@@ -17,8 +17,9 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.Model.GET.ModelCheckList;
-import com.thinkdiffai.cloud_note.R;
+
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.List;

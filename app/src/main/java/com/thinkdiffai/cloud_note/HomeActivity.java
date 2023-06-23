@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Adapter.AdapterNote;
 import com.thinkdiffai.cloud_note.Adapter.AdapterUsers;
@@ -126,7 +127,6 @@ public class HomeActivity extends AppCompatActivity {
     private void opendDialogCreateNote(Context context) {
         final Dialog dialog = new Dialog(context, androidx.appcompat.R.style.Theme_AppCompat_Light_Dialog_Alert);
         dialog.setContentView(R.layout.dialog_add_note_public);
-
         Spinner spinnerTypeNote = (Spinner) dialog.findViewById(R.id.spinner_typeNote);
         LinearLayout layoutTextNote = (LinearLayout) dialog.findViewById(R.id.layout_textNote);
         EditText titleTextNote = (EditText) dialog.findViewById(R.id.title_text_note);

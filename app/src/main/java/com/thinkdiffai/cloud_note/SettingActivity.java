@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.DAO.Login;
 import com.thinkdiffai.cloud_note.DAO.Sort;
 import com.thinkdiffai.cloud_note.Model.Model_State_Login;

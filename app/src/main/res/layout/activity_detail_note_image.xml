@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg3"
-    tools:context=".TextNoteActvity">
+    android:background="@drawable/bg3">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -177,8 +176,6 @@
 
                         </LinearLayout>
                     </LinearLayout>
-
-
                     <EditText
                         android:id="@+id/add_content_text"
                         android:layout_width="match_parent"

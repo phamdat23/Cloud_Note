@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.APIs.APINote;
 import com.thinkdiffai.cloud_note.Model.GET.ModelReturn;
 import com.thinkdiffai.cloud_note.Model.POST.RegiterReq;
@@ -42,7 +43,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         imgBack = (ImageView) findViewById(R.id.img_back);
-        inputYourName = (TextInputLayout) findViewById(R.id.input_yourName);
+        inputYourName = findViewById(R.id.input_yourName);
         inputUsername = (TextInputLayout) findViewById(R.id.input_username);
         inputEmail = (TextInputLayout) findViewById(R.id.input_email);
         inputPasswd = (TextInputLayout) findViewById(R.id.input_passwd);

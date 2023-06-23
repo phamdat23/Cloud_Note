@@ -5,10 +5,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.thinkdiffai.cloud_note.R;
 import com.thinkdiffai.cloud_note.View.Fragment_Calendar;
 import com.thinkdiffai.cloud_note.View.Fragment_Delete;
 import com.thinkdiffai.cloud_note.View.Fragment_Home;
+import com.thinkdiffai.cloud_note.View.GroupsFragment;
 
 public class Fragment_Adapter extends FragmentStateAdapter {
 
@@ -29,6 +29,8 @@ public class Fragment_Adapter extends FragmentStateAdapter {
             case 2:
 
                 return new Fragment_Delete();
+            case 3:
+                return new GroupsFragment();
             default:
 
                 return  new Fragment_Home();
@@ -38,6 +40,6 @@ public class Fragment_Adapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 4;
     }
 }

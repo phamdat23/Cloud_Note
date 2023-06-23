@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.cloud_note.R;
 import com.thinkdiffai.cloud_note.DAO.Login;
 import com.thinkdiffai.cloud_note.Model.Model_State_Login;
 
